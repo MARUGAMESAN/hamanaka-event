@@ -32,11 +32,21 @@
   const weekStart = d => addDays(d, -((d.getDay() + 6) % 7)); // 月曜はじまり
   const daysUntil = s => Math.round((parse(s) - today) / 864e5);
 
+  // イベントごとの固定ID（イベント名＋掲載日から作る。共有リンク ?e=xxxx に使う）
+  const hashId = str => { let h = 5381; for (const ch of str) h = ((h * 33) ^ ch.codePointAt(0)) >>> 0; return "e" + h.toString(36); };
+
   function normalize(list) {
+    const used = {};
     return list
       .filter(r => (r.title || "").trim())
-      .map((r, i) => ({
-        id: "ev" + i,
+      .map(r => {
+        let id = hashId(r.title.trim() + "|" + (normDate(r.posted) || ""));
+        while (used[id]) id += "x";
+        used[id] = 1;
+        return Object.assign({ id }, r);
+      })
+      .map(r => ({
+        id: r.id,
         title: r.title.trim(),
         date: normDate(r.date) || null,
         end: normDate(r.end || r.endDate || r["終了日"]) || null,
@@ -192,6 +202,30 @@
     $("tbd").innerHTML = t.map(e => `<div data-id="${e.id}">${esc(e.title)}<small>日程調整中</small></div>`).join("");
   }
 
+  /* ---------- 共有 ---------- */
+  const SITE_URL = location.origin + location.pathname.replace(/index\.html$/, "");
+  const eventUrl = e => `${SITE_URL}?e=${e.id}`;
+  const shareText = e => `${e.title}\n${whenOf(e)}${e.date && e.time ? " " + e.time : ""}${e.place ? "\n" + e.place : ""}\n#はまなかイベントカレンダー`;
+  let shareTarget = null;
+  function toast(msg) {
+    let t = document.querySelector(".toast");
+    if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+  async function copyLink(url) {
+    try { await navigator.clipboard.writeText(url); }
+    catch (_) { const ta = document.createElement("textarea"); ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+    toast("リンクをコピーしました");
+  }
+  async function doShare(kind) {
+    const e = shareTarget; if (!e) return;
+    const url = eventUrl(e);
+    if (kind === "native") {
+      try { await navigator.share({ title: e.title, text: shareText(e), url }); } catch (_) { /* キャンセル */ }
+    } else copyLink(url);
+  }
+
   /* 日付タップ：その日のイベントをふわっと一覧表示 */
   let dayCtx = null;
   function openDay(s) {
@@ -220,7 +254,19 @@
       <p>${esc(e.desc)}</p>
       <dl>${rows.map(r => `<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join("")}</dl>
       ${url ? `<a class="cta" href="${esc(url)}" target="_blank" rel="noopener">申し込み・詳細はこちら</a>` : ""}
-      ${e.tentative ? '<div class="note">日程は予定です。変更になる場合があります。</div>' : ""}`;
+      ${e.tentative ? '<div class="note">日程は予定です。変更になる場合があります。</div>' : ""}
+      <div class="share">
+        <p class="share-ttl">このイベントを共有する</p>
+        <div class="share-btns">
+          <button class="sbtn native hidden" data-share="native">共有する</button>
+          <a class="sbtn line" href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(eventUrl(e))}" target="_blank" rel="noopener">LINEで送る</a>
+          <a class="sbtn x" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText(e))}&url=${encodeURIComponent(eventUrl(e))}" target="_blank" rel="noopener">Xでポスト</a>
+          <a class="sbtn fb" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(eventUrl(e))}" target="_blank" rel="noopener">Facebook</a>
+          <button class="sbtn copy" data-share="copy">リンクをコピー</button>
+        </div>
+      </div>`;
+    shareTarget = e;
+    if (navigator.share) $("modal").querySelector(".native").classList.remove("hidden");
     $("modalBg").classList.add("open");
     $("modal").scrollTop = 0;
   }
@@ -243,6 +289,7 @@
   zoom.className = "zoom";
   document.body.appendChild(zoom);
   $("modal").addEventListener("click", ev => {
+    const sh = ev.target.closest("[data-share]"); if (sh) { ev.stopPropagation(); return doShare(sh.dataset.share); }
     // 中身を書き換えるので、ページ全体のクリック処理には伝えない
     const back = ev.target.closest("[data-back]"); if (back) { ev.stopPropagation(); return openDay(back.dataset.back); }
     const row = ev.target.closest("[data-id]"); if (row) { ev.stopPropagation(); return openModal(row.dataset.id); }
@@ -252,8 +299,12 @@
   });
   zoom.addEventListener("click", () => zoom.classList.remove("open"));
   document.addEventListener("keydown", ev => { if (ev.key === "Escape") zoom.classList.remove("open"); });
-  $("modalBg").addEventListener("click", ev => { if (ev.target === $("modalBg") || ev.target.closest(".close")) $("modalBg").classList.remove("open"); });
-  document.addEventListener("keydown", ev => { if (ev.key === "Escape") $("modalBg").classList.remove("open"); });
+  const closeModal = () => {
+    $("modalBg").classList.remove("open");
+    if (location.search.includes("e=")) history.replaceState(null, "", location.pathname + location.hash);
+  };
+  $("modalBg").addEventListener("click", ev => { if (ev.target === $("modalBg") || ev.target.closest(".close")) closeModal(); });
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape") closeModal(); });
   document.body.addEventListener("click", ev => {
     if (ev.target.closest(".modal")) return;
     const t = ev.target.closest("[data-id]"); if (t) { dayCtx = null; openModal(t.dataset.id); }
@@ -301,6 +352,12 @@
     });
     $("loading").remove();
     renderYouth(); renderNews(); renderCal(); renderTbd();
+    // 共有リンク（?e=xxxx）から来たら、そのイベントの詳細を開く
+    const shared = new URLSearchParams(location.search).get("e");
+    if (shared) {
+      if (EVENTS.some(e => e.id === shared)) openModal(shared);
+      else toast("このイベントは見つかりませんでした（終了または掲載終了の可能性があります）");
+    }
   }).catch(err => {
     $("loading").textContent = "イベント情報を読み込めませんでした。時間をおいて再度お試しください。";
     console.error(err);
