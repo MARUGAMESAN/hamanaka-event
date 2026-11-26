@@ -85,13 +85,13 @@
 
   function renderYouth() {
     const up = dated.filter(e => e.cat.key === "youth" && lastDay(e) >= TODAY);
-    $("youthGrid").innerHTML = up.length ? up.map(e => {
+    $("youthGrid").innerHTML = up.length ? up.slice(0, 1).map(e => {
       const n = daysUntil(e.date);
       const c = n <= 0 ? (n < 0 ? "開催中！" : "今日開催！") : n === 1 ? "明日開催！" : `あと${n}日`;
       return `<div class="ycard" data-id="${e.id}">${dateBox(e.date)}<div>
         <h3>${esc(e.title)}</h3><div class="date-line">${whenOf(e)}</div><div class="meta">${where(e)}</div>
-        <span class="count">${c}</span></div></div>`;
-    }).join("") : `<div class="youth-empty">次の若者イベントは準備中です。お楽しみに！</div>`;
+        <span class="count">${c}</span></div>${e.images.length ? `<img class="thumb" src="${esc(e.images[0].thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ""}</div>`;
+    }).join("") + (up.length > 1 ? `<p class="youth-more">ほかにも若者イベントが${up.length - 1}件あります（カレンダーに表示しています）</p>` : "") : `<div class="youth-empty">次の若者イベントは準備中です。お楽しみに！</div>`;
   }
 
   function renderNews() {
@@ -104,7 +104,7 @@
     }).join("") || `<li class="empty">まだ掲載情報はありません</li>`;
   }
 
-  let view = "month", cur = new Date(today.getFullYear(), today.getMonth(), 1), selected = null;
+  let view = "month", cur = new Date(today.getFullYear(), today.getMonth(), 1);
 
   const dotsFor = s => {
     const ev = (byDate[s] || []).slice(0, 3).map(e => dot(e.cat)).join("");
@@ -148,7 +148,7 @@
       if (i >= 35 && d.getMonth() !== m) break;
       const has = !!byDate[s], yy = has && byDate[s].some(e => e.cat.key === "youth");
       const rg = !has && regOn(d).length > 0;
-      const cls = ["cell", d.getMonth() !== m ? "out" : "", has ? "has" : "", rg ? "rgday" : "", yy ? "y" : "", s === TODAY ? "today" : "", s === selected ? "sel" : ""].join(" ");
+      const cls = ["cell", d.getMonth() !== m ? "out" : "", has ? "has" : "", rg ? "rgday" : "", yy ? "y" : "", s === TODAY ? "today" : "", ""].join(" ");
       cells += `<div class="${cls}" ${has || rg ? `data-day="${s}"` : ""}>${d.getDate()}${dotsFor(s)}</div>`;
     }
     const used = [...new Set(dated.map(e => e.cat))];
@@ -156,12 +156,9 @@
       <div class="cal-nav"><button class="navbtn" data-nav="-1" aria-label="前の月">‹</button>
         <h3>${y}年 ${m + 1}月</h3><button class="navbtn" data-nav="1" aria-label="次の月">›</button></div>
       <div class="grid">${WD.map((w, i) => `<div class="dow ${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${w}</div>`).join("")}${cells}</div>
-      <div class="legend">${used.map(c => `<span>${dot(c)}${esc(c.label)}</span>`).join("")}${showRegular ? '<span><span class="dot rg"></span>定期活動</span>' : ""}<span>日付をタップでその日のイベントを表示</span></div>`;
+      <div class="legend">${used.map(c => `<span>${dot(c)}${esc(c.label)}</span>`).join("")}${showRegular ? '<span><span class="dot rg"></span>定期活動</span>' : ""}<span>日付をタップすると、その日のイベントが開きます</span></div>`;
 
-    if (selected) {
-      const sd = parse(selected);
-      renderList(`${jp(selected)}のイベント`, byDate[selected] || [], "この日のイベントはありません", regOn(sd).map(r => ({ r, label: jp(sd) })));
-    } else {
+    {
       const ms = `${y}-${pad(m + 1)}-01`, me = ymd(new Date(y, m + 1, 0));
       renderList(`${y}年${m + 1}月のイベント`, dated.filter(e => e.date <= me && lastDay(e) >= ms), `${y}年${m + 1}月のイベントはまだありません`, regsBetween(new Date(y, m, 1), new Date(y, m + 1, 0)));
     }
@@ -172,7 +169,8 @@
     let days = "";
     for (let i = 0; i < 7; i++) {
       const d = addDays(s, i), k = ymd(d);
-      days += `<div class="wday ${byDate[k] ? "has" : ""} ${!byDate[k] && regOn(d).length ? "rgday" : ""} ${k === TODAY ? "today" : ""}"><div class="wd">${WD[d.getDay()]}</div><div class="dn">${d.getDate()}</div>${dotsFor(k)}</div>`;
+      const tap = byDate[k] || regOn(d).length;
+      days += `<div class="wday ${byDate[k] ? "has" : ""} ${!byDate[k] && regOn(d).length ? "rgday" : ""} ${k === TODAY ? "today" : ""}" ${tap ? `data-day="${k}"` : ""}><div class="wd">${WD[d.getDay()]}</div><div class="dn">${d.getDate()}</div>${dotsFor(k)}</div>`;
     }
     const name = offset ? "来週" : "今週";
     const label = jpRange(ymd(s), ymd(e));
@@ -188,6 +186,18 @@
     $("tbd").innerHTML = t.map(e => `<div data-id="${e.id}">${esc(e.title)}<small>日程調整中</small></div>`).join("");
   }
 
+  /* 日付タップ：その日のイベントをふわっと一覧表示 */
+  let dayCtx = null;
+  function openDay(s) {
+    const d = parse(s), evs = byDate[s] || [], regs = regOn(d);
+    dayCtx = s;
+    $("modal").innerHTML = `<button class="close" aria-label="閉じる">×</button>
+      <p class="day-sub">${evs.length + regs.length}件</p><h3>${jp(s)}</h3>
+      <div class="list day-list">${evs.map(evRow).join("") + regs.map(r => rgRow(r, "定期")).join("") || '<div class="empty">この日のイベントはありません</div>'}</div>`;
+    $("modalBg").classList.add("open");
+    $("modal").scrollTop = 0;
+  }
+
   function openModal(id) {
     const e = EVENTS.find(x => x.id === id); if (!e) return;
     const url = safeUrl(e.apply);
@@ -198,7 +208,7 @@
       ["申込締切", e.deadline ? jp(e.deadline) : ""],
       ["申込方法", url ? "" : esc(e.apply)], ["主催", esc(e.organizer)]
     ].filter(r => r[1]);
-    $("modal").innerHTML = `<button class="close" aria-label="閉じる">×</button>${tag(e.cat)}
+    $("modal").innerHTML = `<button class="close" aria-label="閉じる">×</button>${dayCtx ? `<button class="back" data-back="${dayCtx}">‹ ${jp(dayCtx)}の一覧へ</button><br>` : ""}${tag(e.cat)}
       <h3>${esc(e.title)}</h3>
       ${e.images.length ? `<div class="pics">${e.images.map(im => `<img src="${esc(im.full)}" alt="${esc(e.title)}のチラシ・画像" loading="lazy" onerror="this.remove()">`).join("")}</div>` : ""}
       <p>${esc(e.desc)}</p>
@@ -206,28 +216,30 @@
       ${url ? `<a class="cta" href="${esc(url)}" target="_blank" rel="noopener">申し込み・詳細はこちら</a>` : ""}
       ${e.tentative ? '<div class="note">日程は予定です。変更になる場合があります。</div>' : ""}`;
     $("modalBg").classList.add("open");
+    $("modal").scrollTop = 0;
   }
 
   /* ---------- イベント操作 ---------- */
   document.querySelector(".switch").addEventListener("click", ev => {
     const b = ev.target.closest("button"); if (!b) return;
     document.querySelectorAll(".switch button").forEach(x => x.classList.toggle("on", x === b));
-    view = b.dataset.view; selected = null;
+    view = b.dataset.view;
     if (view === "month") cur = new Date(today.getFullYear(), today.getMonth(), 1);
     renderCal();
   });
   $("calCard").addEventListener("click", ev => {
     const nav = ev.target.closest("[data-nav]");
-    if (nav) { cur = new Date(cur.getFullYear(), cur.getMonth() + Number(nav.dataset.nav), 1); selected = null; return renderMonth(); }
-    const c = ev.target.closest("[data-day]"); if (!c) return;
-    selected = selected === c.dataset.day ? null : c.dataset.day;
-    renderMonth();
+    if (nav) { cur = new Date(cur.getFullYear(), cur.getMonth() + Number(nav.dataset.nav), 1); return renderMonth(); }
+    const c = ev.target.closest("[data-day]"); if (c) openDay(c.dataset.day);
   });
   /* 画像タップでサイト内に拡大表示（もう一度タップで閉じる） */
   const zoom = document.createElement("div");
   zoom.className = "zoom";
   document.body.appendChild(zoom);
   $("modal").addEventListener("click", ev => {
+    // 中身を書き換えるので、ページ全体のクリック処理には伝えない
+    const back = ev.target.closest("[data-back]"); if (back) { ev.stopPropagation(); return openDay(back.dataset.back); }
+    const row = ev.target.closest("[data-id]"); if (row) { ev.stopPropagation(); return openModal(row.dataset.id); }
     const img = ev.target.closest(".pics img"); if (!img) return;
     zoom.innerHTML = `<img src="${esc(img.src)}" alt="${esc(img.alt)}"><button class="close" aria-label="閉じる">×</button>`;
     zoom.classList.add("open");
@@ -238,7 +250,7 @@
   document.addEventListener("keydown", ev => { if (ev.key === "Escape") $("modalBg").classList.remove("open"); });
   document.body.addEventListener("click", ev => {
     if (ev.target.closest(".modal")) return;
-    const t = ev.target.closest("[data-id]"); if (t) openModal(t.dataset.id);
+    const t = ev.target.closest("[data-id]"); if (t) { dayCtx = null; openModal(t.dataset.id); }
   });
 
   /* ---------- 定期活動・サークル ---------- */

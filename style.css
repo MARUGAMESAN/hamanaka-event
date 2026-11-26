@@ -196,3 +196,27 @@ header .wrap.page-head{padding-top:26px}
 .rgcard .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
 .rgcard .cta{margin:0;padding:10px 16px;font-size:14px;border-radius:99px;background:var(--sea)}
 .cell.today.rgday{border:2px solid var(--sea)}
+
+/* ---------- 若者イベント（コンパクト・1件） ---------- */
+.youth-box{padding:14px 14px 12px;border-radius:20px}
+.youth-box .sec-head{margin-bottom:8px}
+.youth-box .sec-head h2{font-size:18px}
+.youth-grid{grid-template-columns:1fr}
+.ycard{padding:12px;gap:12px;align-items:center}
+.ycard .datebox{flex-basis:54px;padding:6px 0}
+.ycard .datebox .d{font-size:22px}
+.ycard>div:nth-child(2){flex:1;min-width:0}
+.ycard h3{font-size:16px}
+.ycard .thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;flex-shrink:0}
+.youth-more{margin:8px 2px 0;font-size:12px;color:rgba(255,255,255,.9)}
+
+/* ---------- イベント一覧 → カレンダーの順 ---------- */
+#listArea .list-title{margin-top:0}
+#listArea + .cal-card{margin-top:18px}
+.wday[data-day]{cursor:pointer}
+
+/* ---------- 日付タップのポップアップ ---------- */
+.day-sub{margin:4px 0 0;font-size:13px;color:var(--sub);font-weight:700}
+.modal .day-list{margin-top:10px}
+.modal .day-list .ev{padding:12px}
+.back{border:0;background:none;font:inherit;font-weight:700;font-size:14px;color:var(--sea2);padding:8px 0;cursor:pointer}
