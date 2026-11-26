@@ -4,7 +4,7 @@
 window.SITE_CONFIG = {
   // スプレッドシート「公開用」タブを「ウェブに公開（CSV）」したURL
   // 空のままだと data/events.json を読み込みます
-  SHEET_CSV_URL: "",
+  SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5XMqcV_k7QEOYoCVN6wTt7Ju9E1ei3hIfikLu8zCYZ9tekO7D6JdqsOfklAmTEM-VgkH0Lc2r9pUX/pub?gid=1448576913&single=true&output=csv",
 
   // 主催者向け「イベント掲載申請フォーム」のURL（https://docs.google.com/forms/d/e/.../viewform）
   // 空のままだと「掲載申請」ボタンは表示されません
