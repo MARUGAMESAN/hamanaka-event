@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>はまなかイベントカレンダー｜浜中町のイベント情報</title>
+<meta name="description" content="北海道浜中町のイベント情報をまとめてチェックできるイベントカレンダー。若者イベント、新着情報、月別・今週・来週の予定がひと目でわかります。">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/favicon.svg">
+<meta name="theme-color" content="#0f2a44">
+<!-- SNS（LINE・X・Facebook）でURLを共有したときの表示。
+     公開後、下の2か所の「USERNAME」を自分のGitHubユーザー名に書き換える -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="はまなかイベントカレンダー">
+<meta property="og:title" content="はまなかイベントカレンダー｜浜中町のイベント情報">
+<meta property="og:description" content="北海道浜中町のイベント情報をまとめてチェックできるイベントカレンダー。">
+<meta property="og:url" content="https://USERNAME.github.io/hamanaka-event/">
+<meta property="og:image" content="https://USERNAME.github.io/hamanaka-event/img/ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">HAMANAKA EVENT CALENDAR</div>
+    <h1>はまなかイベントカレンダー</h1>
+    <p class="lead">浜中町のイベント情報を、ここでまとめてチェック。</p>
+    <span class="today-pill" id="todayPill"></span>
+    <a class="post-btn hidden" id="postBtnTop" target="_blank" rel="noopener">＋ イベントを掲載する</a>
+  </div>
+  <svg class="waves" viewBox="0 0 1200 46" preserveAspectRatio="none"><path d="M0,24 C150,46 300,4 450,22 C600,40 750,6 900,22 C1050,38 1125,16 1200,20 L1200,46 L0,46 Z" fill="#fbfaf7"/></svg>
+</header>
+
+<main class="wrap">
+  <p class="loading" id="loading">イベント情報を読み込み中…</p>
+
+  <section class="youth">
+    <div class="youth-box">
+      <div class="sec-head"><h2>若者イベント</h2><span class="en">FOR YOUNG PEOPLE</span></div>
+      <div class="youth-grid" id="youthGrid"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>新着イベント情報</h2><span class="en">NEWS</span></div>
+    <ul class="news" id="news"></ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>イベントカレンダー</h2><span class="en">CALENDAR</span></div>
+    <div class="switch" role="tablist">
+      <button data-view="month" class="on">月別</button>
+      <button data-view="this">今週</button>
+      <button data-view="next">来週</button>
+    </div>
+    <div class="cal-card" id="calCard"></div>
+    <div id="listArea"></div>
+  </section>
+
+  <section id="tbdSec" class="hidden">
+    <div class="sec-head"><h2>準備中のイベント</h2><span class="en">COMING SOON</span></div>
+    <div class="tbd" id="tbd"></div>
+  </section>
+
+  <section id="postSec" class="hidden">
+    <div class="post-box">
+      <h2>イベントを掲載しませんか？</h2>
+      <p>浜中町で開催するイベントなら、どなたでも掲載を申請できます。フォームに入力いただいた内容は、運営が確認してから掲載します。</p>
+      <a class="cta" id="postBtn" target="_blank" rel="noopener">掲載を申請する（無料）</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  はまなかイベントカレンダー｜<span id="operator"></span><br>
+  掲載内容は変更になる場合があります。最新情報は各主催者にご確認ください。
+</footer>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
