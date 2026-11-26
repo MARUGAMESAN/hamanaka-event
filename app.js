@@ -133,10 +133,19 @@
   const rgRow = (r, label) => `<a class="ev rg" href="regular.html#${r.id}"><div class="rg-when">${esc(label)}</div><div>
       <span class="tag" style="background:${r.cat.bg};color:${r.cat.fg}">${esc(r.cat.label)}</span> <span class="tag rg-tag">定期活動</span>
       <h4>${esc(r.name)}</h4><div class="meta">${esc(window.HC.whenText(r))}${r.place ? "｜" + esc(r.place) : ""}</div></div></a>`;
+  const slimRow = e => `<button class="slim ${e.cat.key === "youth" ? "y" : ""}" data-id="${e.id}">
+      <span class="s-date">${whenOf(e)}</span>
+      <span class="s-main"><span class="s-title">${esc(e.title)}</span>${tag(e.cat)}</span>
+      <span class="s-arrow" aria-hidden="true">›</span></button>`;
+  const slimRgRow = (r, label) => `<a class="slim rg" href="regular.html#${r.id}">
+      <span class="s-date">${esc(label)}</span>
+      <span class="s-main"><span class="s-title">${esc(r.name)}</span><span class="tag rg-tag">定期活動</span></span>
+      <span class="s-arrow" aria-hidden="true">›</span></a>`;
   function renderList(title, evs, emptyMsg, regs) {
     regs = regs || [];
-    const body = evs.map(evRow).join("") + regs.map(x => rgRow(x.r, x.label)).join("");
-    $("listArea").innerHTML = `<p class="list-title">${title}</p><div class="list">${body || `<div class="empty">${emptyMsg}</div>`}</div>`;
+    // カレンダー下の一覧は細い1行（日付・タイトル・ジャンル）。画像や場所はタップして詳細で見る
+    const body = evs.map(slimRow).join("") + regs.map(x => slimRgRow(x.r, x.label)).join("");
+    $("listArea").innerHTML = `<p class="list-title">${title}<span class="list-n">${evs.length}件</span></p><div class="slim-list">${body || `<div class="empty">${emptyMsg}</div>`}</div>`;
   }
   // 期間中の定期活動（同じ活動は1回だけ、最初の日を表示）
   function regsBetween(s, e) {
