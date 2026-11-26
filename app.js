@@ -222,7 +222,7 @@
     ].filter(r => r[1]);
     $("modal").innerHTML = `<button class="close" aria-label="閉じる">×</button>${tag(e.cat)}
       <h3>${esc(e.title)}</h3>
-      ${e.images.length ? `<div class="pics">${e.images.map(im => `<a href="${esc(im.link)}" target="_blank" rel="noopener"><img src="${esc(im.full)}" alt="${esc(e.title)}のチラシ・画像" loading="lazy" onerror="this.parentNode.remove()"></a>`).join("")}</div>` : ""}
+      ${e.images.length ? `<div class="pics">${e.images.map(im => `<img src="${esc(im.full)}" alt="${esc(e.title)}のチラシ・画像" loading="lazy" onerror="this.remove()">`).join("")}</div>` : ""}
       <p>${esc(e.desc)}</p>
       <dl>${rows.map(r => `<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join("")}</dl>
       ${url ? `<a class="cta" href="${esc(url)}" target="_blank" rel="noopener">申し込み・詳細はこちら</a>` : ""}
@@ -245,6 +245,17 @@
     selected = selected === c.dataset.day ? null : c.dataset.day;
     renderMonth();
   });
+  /* 画像タップでサイト内に拡大表示（もう一度タップで閉じる） */
+  const zoom = document.createElement("div");
+  zoom.className = "zoom";
+  document.body.appendChild(zoom);
+  $("modal").addEventListener("click", ev => {
+    const img = ev.target.closest(".pics img"); if (!img) return;
+    zoom.innerHTML = `<img src="${esc(img.src)}" alt="${esc(img.alt)}"><button class="close" aria-label="閉じる">×</button>`;
+    zoom.classList.add("open");
+  });
+  zoom.addEventListener("click", () => zoom.classList.remove("open"));
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape") zoom.classList.remove("open"); });
   $("modalBg").addEventListener("click", ev => { if (ev.target === $("modalBg") || ev.target.closest(".close")) $("modalBg").classList.remove("open"); });
   document.addEventListener("keydown", ev => { if (ev.key === "Escape") $("modalBg").classList.remove("open"); });
   document.body.addEventListener("click", ev => {
