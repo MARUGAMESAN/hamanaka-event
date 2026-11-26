@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>定期活動・サークル｜はまなかイベントカレンダー</title>
+<meta name="description" content="北海道浜中町で毎週・毎月行われている定期活動・サークルの一覧。カテゴリ・曜日・対象で探せます。">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/favicon.svg">
+<meta name="theme-color" content="#0f2a44">
+<!-- SNS（LINE・X・Facebook）でURLを共有したときの表示。
+     公開後、下の2か所の「USERNAME」を自分のGitHubユーザー名に書き換える -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="はまなかイベントカレンダー">
+<meta property="og:title" content="定期活動・サークル｜はまなかイベントカレンダー">
+<meta property="og:description" content="北海道浜中町のイベント情報をまとめてチェックできるイベントカレンダー。">
+<meta property="og:url" content="https://marugamesan.github.io/hamanaka-event/regular.html">
+<meta property="og:image" content="https://marugamesan.github.io/hamanaka-event/img/ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <nav class="topnav" aria-label="メニュー">
+    <div class="wrap">
+      <a class="brand" href="./">はまなかイベントカレンダー</a>
+      <div class="links">
+        <a href="./#calendar">イベント</a>
+        <a href="regular.html" class="cur">定期活動・サークル</a>
+      </div>
+    </div>
+  </nav>
+  <div class="wrap page-head">
+    <div class="logo">REGULAR ACTIVITIES</div>
+    <h1>定期活動・サークル</h1>
+    <p class="lead">浜中町で毎週・毎月やっている活動の一覧です。外の人も参加・見学できるものを載せています。</p>
+  </div>
+  <svg class="waves" viewBox="0 0 1200 46" preserveAspectRatio="none"><path d="M0,24 C150,46 300,4 450,22 C600,40 750,6 900,22 C1050,38 1125,16 1200,20 L1200,46 L0,46 Z" fill="#fbfaf7"/></svg>
+</header>
+
+<main class="wrap">
+  <section>
+    <div class="filters">
+      <div class="frow" id="fCat"><span class="lbl">種類</span></div>
+      <div class="frow" id="fDay"><span class="lbl">曜日</span></div>
+      <div class="frow"><label class="lbl" for="fTarget">対象</label><select id="fTarget"><option value="">すべて</option></select></div>
+    </div>
+    <p class="rcount" id="rcount">読み込み中…</p>
+    <div class="rgrid" id="rgrid"></div>
+  </section>
+
+  <section id="postSec">
+    <div class="post-box">
+      <h2>サークル・定期活動を掲載しませんか？</h2>
+      <p>外の人も参加・見学ができて、代表の方が掲載をOKした活動を載せています（無料）。掲載後も、活動が続いているか時々確認のご連絡をします。</p>
+      <div class="post-btns">
+        <a class="cta" id="postRegBtn" target="_blank" rel="noopener">サークルを掲載</a>
+        <a class="cta sub" id="postBtn" target="_blank" rel="noopener">イベントを掲載</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  はまなかイベントカレンダー｜<span id="operator"></span><br>
+  掲載内容は変更になる場合があります。最新情報は各団体にご確認ください。
+</footer>
+
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script src="regular.js"></script>
+</body>
+</html>

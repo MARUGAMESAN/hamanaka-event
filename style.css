@@ -13,7 +13,7 @@ a{color:inherit}
 header{background:var(--sea);color:#fff;position:relative;overflow:hidden}
 header .wrap{padding-top:34px;padding-bottom:58px;position:relative;z-index:1}
 .logo{font-size:13px;letter-spacing:.2em;opacity:.75;font-weight:700}
-h1{font-size:clamp(24px,7vw,44px);margin:6px 0 4px;font-weight:900;letter-spacing:.02em}
+h1{font-size:clamp(22px,6.4vw,44px);margin:6px 0 4px;font-weight:900;letter-spacing:.02em}
 .lead{margin:0;opacity:.85;font-size:15px}
 .waves{position:absolute;left:0;right:0;bottom:-1px;height:46px}
 .today-pill{display:inline-block;margin:14px 8px 0 0;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:99px;font-size:13px}
@@ -124,3 +124,75 @@ footer{background:var(--sea);color:rgba(255,255,255,.75);font-size:13px;padding:
 .zoom.open{display:flex}
 .zoom img{max-width:100%;max-height:100%;object-fit:contain;-webkit-touch-callout:none}
 .zoom .close{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.9);font-size:22px;cursor:pointer}
+
+/* ---------- ヘッダーのメニュー ---------- */
+.topnav{position:relative;z-index:2;border-bottom:1px solid rgba(255,255,255,.12)}
+.topnav .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+.topnav .brand{font-weight:900;font-size:14px;text-decoration:none;color:#fff}
+.topnav .links{display:flex;gap:4px;flex-wrap:wrap}
+.topnav .links a{color:#fff;text-decoration:none;font-size:14px;font-weight:700;padding:10px 12px;border-bottom:2px solid transparent}
+.topnav .links a.cur{border-bottom-color:var(--sun)}
+.topnav .links a:hover{opacity:.8}
+header .wrap.page-head{padding-top:26px}
+
+/* ---------- 日付の行 ---------- */
+.date-line{font-size:13px;font-weight:700;color:var(--sea2)}
+.news li{align-items:flex-start}
+.news .posted{display:inline-block;margin-top:2px;font-size:12px;color:var(--sub);font-weight:500}
+
+/* ---------- カレンダー：定期活動の切り替え ---------- */
+.cal-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.cal-tools .switch{margin-bottom:0}
+.reg-toggle{display:inline-flex;align-items:center;gap:10px;border:1.5px solid #2f7d8a;background:#fff;color:#1f5f69;font:inherit;font-weight:700;font-size:14px;padding:6px 14px 6px 6px;border-radius:99px;cursor:pointer;min-height:44px}
+.reg-toggle .knob{width:36px;height:22px;border-radius:99px;border:2px solid #2f7d8a;position:relative;flex-shrink:0}
+.reg-toggle .knob::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#2f7d8a;transition:left .15s}
+.reg-toggle[aria-pressed="true"]{background:#2f7d8a;color:#fff}
+.reg-toggle[aria-pressed="true"] .knob{border-color:#fff}
+.reg-toggle[aria-pressed="true"] .knob::after{left:16px;background:#fff}
+.dot.rg{background:transparent;border:1.5px dashed #2f7d8a;width:8px;height:8px}
+.cell.rgday{border:1.5px dashed #9cc3ca;cursor:pointer}
+.cell.rgday:hover{border-color:#2f7d8a}
+.wday.rgday{outline:1.5px dashed #9cc3ca;outline-offset:-2px}
+.ev.rg{background:transparent;border:1.5px dashed #9cc3ca;text-decoration:none;color:inherit;opacity:.9}
+.ev.rg:hover{border-color:#2f7d8a}
+.rg-when{flex:0 0 64px;font-size:11px;font-weight:700;color:#1f5f69;text-align:center;align-self:center;line-height:1.35}
+.tag.rg-tag{background:#fff;color:#1f5f69;border:1px dashed #2f7d8a}
+.tag.visit{background:#fdeedd;color:#8a4512}
+
+/* ---------- 定期活動の帯（横スクロール） ---------- */
+.sec-lead{margin:-6px 0 14px;font-size:14px;color:var(--sub)}
+.rband{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 10px;-webkit-overflow-scrolling:touch}
+.rband .empty{flex:1}
+.rcard{flex:0 0 min(78%,260px);scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:6px}
+.rcard:hover{border-color:#2f7d8a}
+.rcard h3{margin:0;font-size:16px;line-height:1.4}
+.rcard .count{margin-top:0}
+.checked{font-size:12px;color:var(--sub);margin-top:auto}
+.more{display:inline-block;margin-top:6px;font-weight:900;color:#1f5f69;text-decoration:none;padding:10px 0}
+.more:hover{text-decoration:underline}
+
+/* ---------- 掲載ボタン 2つ ---------- */
+.post-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.post-btns .cta{margin:0;flex:1 1 200px;max-width:260px}
+.cta.sub{background:#fff;color:var(--sea);border:2px solid var(--sea)}
+.cta.soon{background:#eef1f3;color:#55626e;border-color:#cfd6dc;cursor:default}
+
+/* ---------- 定期活動の一覧ページ ---------- */
+.filters{display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-bottom:16px}
+.frow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.frow .lbl{font-size:13px;font-weight:700;color:var(--sub);width:42px;flex-shrink:0}
+.chip{border:1.5px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:14px;font-weight:700;padding:6px 14px;border-radius:99px;cursor:pointer;min-height:40px}
+.chip.on{background:var(--sea);border-color:var(--sea);color:#fff}
+.frow select{font:inherit;font-size:14px;padding:8px 12px;border-radius:12px;border:1.5px solid var(--line);background:#fff;min-height:40px;max-width:100%}
+.rcount{font-size:14px;color:var(--sub);margin:0 0 10px}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.rgcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px;scroll-margin-top:16px}
+.rgcard:target{border-color:#2f7d8a;box-shadow:0 0 0 3px #d7ecef}
+.rgcard h3{margin:0;font-size:18px;line-height:1.4}
+.rgcard dl{display:grid;grid-template-columns:56px 1fr;gap:4px 8px;margin:0;font-size:14px}
+.rgcard dt{color:var(--sub);font-weight:700}
+.rgcard dd{margin:0;word-break:break-word}
+.rgcard .desc{font-size:14px;margin:0;white-space:pre-wrap;color:var(--ink)}
+.rgcard .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+.rgcard .cta{margin:0;padding:10px 16px;font-size:14px;border-radius:99px;background:var(--sea)}
+.cell.today.rgday{border:2px solid var(--sea)}

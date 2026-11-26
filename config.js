@@ -10,6 +10,13 @@ window.SITE_CONFIG = {
   // 空のままだと「掲載申請」ボタンは表示されません
   FORM_URL: "https://forms.gle/W5fUZy2moYaimNNK6",
 
+  // 定期活動・サークル：スプレッドシート「定期活動_公開用」タブを「ウェブに公開（CSV）」したURL
+  // 空のままだと data/regular.json を読み込みます
+  REGULAR_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5XMqcV_k7QEOYoCVN6wTt7Ju9E1ei3hIfikLu8zCYZ9tekO7D6JdqsOfklAmTEM-VgkH0Lc2r9pUX/pub?gid=128210075&single=true&output=csv",
+
+  // 「サークルを掲載」ボタンのフォームURL（空のままだと「準備中」と表示）
+  REGULAR_FORM_URL: "https://forms.gle/qxWPcJKKXZq7FkZu5",
+
   // フッターに出す運営者名
   OPERATOR: "SPARK NODE HAMANAKA"
 };

@@ -28,49 +28,9 @@
   const CAT_INDEX = {};
   Object.keys(CATS).forEach(k => CAT_INDEX[catKey(k)] = CATS[k]);
   const catOf = name => CAT_INDEX[catKey(name)] || CATS["その他"];
-  const WD = ["日", "月", "火", "水", "木", "金", "土"];
-
-  /* ---------- ユーティリティ ---------- */
-  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const pad = n => String(n).padStart(2, "0");
-  const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
-  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const { WD, esc, pad, ymd, parse, addDays, today, TODAY, jp, jpRange, normDate, truthy, safeUrl, parseCSV } = window.HC;
   const weekStart = d => addDays(d, -((d.getDay() + 6) % 7)); // 月曜はじまり
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const TODAY = ymd(today);
   const daysUntil = s => Math.round((parse(s) - today) / 864e5);
-  const jp = s => { const d = parse(s); return `${d.getMonth() + 1}月${d.getDate()}日（${WD[d.getDay()]}）`; };
-
-  // "2026/12/5" "2026-12-05" "2026/12/05 1:38:00" などを "2026-12-05" に
-  function normDate(v) {
-    const m = String(v || "").match(/(\d{4})[\/\-.年](\d{1,2})[\/\-.月](\d{1,2})/);
-    return m ? `${m[1]}-${pad(m[2])}-${pad(m[3])}` : "";
-  }
-  const truthy = v => /^(true|1|yes|はい|○|◯)$/i.test(String(v || "").trim());
-  const safeUrl = v => /^https?:\/\/\S+$/i.test(String(v || "").trim()) ? String(v).trim() : "";
-
-  // CSVパーサ（改行・カンマ・ダブルクォート入りのセルに対応）
-  function parseCSV(text) {
-    const rows = []; let row = [], cell = "", q = false;
-    for (let i = 0; i < text.length; i++) {
-      const c = text[i];
-      if (q) {
-        if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
-        else cell += c;
-      } else if (c === '"') q = true;
-      else if (c === ",") { row.push(cell); cell = ""; }
-      else if (c === "\n" || c === "\r") {
-        if (c === "\r" && text[i + 1] === "\n") i++;
-        row.push(cell); rows.push(row); row = []; cell = "";
-      } else cell += c;
-    }
-    if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
-    const head = (rows.shift() || []).map(h => h.trim());
-    return rows.filter(r => r.some(c => c.trim() !== "")).map(r => {
-      const o = {}; head.forEach((h, i) => o[h] = (r[i] || "").trim()); return o;
-    });
-  }
 
   function normalize(list) {
     return list
@@ -79,6 +39,7 @@
         id: "ev" + i,
         title: r.title.trim(),
         date: normDate(r.date) || null,
+        end: normDate(r.end || r.endDate || r["終了日"]) || null,
         time: r.time || "",
         place: r.place || "",
         cat: catOf(r.category),
@@ -104,20 +65,13 @@
     }).filter(Boolean);
   }
 
-  async function loadEvents() {
-    if (CFG.SHEET_CSV_URL) {
-      try {
-        const res = await fetch(CFG.SHEET_CSV_URL, { cache: "no-store" });
-        if (!res.ok) throw new Error(res.status);
-        return normalize(parseCSV(await res.text()));
-      } catch (e) { console.warn("スプレッドシートの読み込みに失敗。events.json を使います", e); }
-    }
-    const res = await fetch("data/events.json", { cache: "no-store" });
-    return normalize(await res.json());
-  }
+  const loadEvents = () => window.HC.loadRows(CFG.SHEET_CSV_URL, "data/events.json").then(normalize);
+  // 開催日の表示（期間・予定つき）
+  const whenOf = e => e.date ? jpRange(e.date, e.end) + (e.tentative ? "（予定）" : "") : "日程調整中";
+  const lastDay = e => e.end && e.end > e.date ? e.end : e.date;
 
   /* ---------- 描画 ---------- */
-  let EVENTS = [], dated = [], byDate = {};
+  let EVENTS = [], dated = [], byDate = {}, REGULAR = [], showRegular = false;
   const $ = id => document.getElementById(id);
 
   function dateBox(s) {
@@ -127,14 +81,15 @@
   const tag = c => `<span class="tag" style="background:${c.bg};color:${c.fg}">${esc(c.label)}</span>`;
   const dot = c => `<span class="dot" style="background:${c.color}"></span>`;
   const where = e => esc(e.time) + (e.time && e.place ? "｜" : "") + esc(e.place);
+  const regOn = d => showRegular ? REGULAR.filter(r => window.HC.occursOn(r, d)) : [];
 
   function renderYouth() {
-    const up = dated.filter(e => e.cat.key === "youth" && e.date >= TODAY);
+    const up = dated.filter(e => e.cat.key === "youth" && lastDay(e) >= TODAY);
     $("youthGrid").innerHTML = up.length ? up.map(e => {
       const n = daysUntil(e.date);
-      const c = n === 0 ? "今日開催！" : n === 1 ? "明日開催！" : `あと${n}日`;
+      const c = n <= 0 ? (n < 0 ? "開催中！" : "今日開催！") : n === 1 ? "明日開催！" : `あと${n}日`;
       return `<div class="ycard" data-id="${e.id}">${dateBox(e.date)}<div>
-        <h3>${esc(e.title)}</h3><div class="meta">${where(e)}</div>
+        <h3>${esc(e.title)}</h3><div class="date-line">${whenOf(e)}</div><div class="meta">${where(e)}</div>
         <span class="count">${c}</span></div></div>`;
     }).join("") : `<div class="youth-empty">次の若者イベントは準備中です。お楽しみに！</div>`;
   }
@@ -144,24 +99,44 @@
     $("news").innerHTML = list.map(e => {
       const p = parse(e.posted);
       const isNew = (today - p) / 864e5 <= 7;
-      const when = e.date ? jp(e.date) + (e.tentative ? "（予定）" : "") : "日程調整中";
-      return `<li data-id="${e.id}"><span class="posted">${p.getMonth() + 1}/${p.getDate()} 掲載</span>
-        <span class="title">${esc(e.title)}${isNew ? '<span class="new-badge">NEW</span>' : ""}<br><span class="meta">${when}</span></span>${tag(e.cat)}</li>`;
+      return `<li data-id="${e.id}">
+        <span class="title">${esc(e.title)}${isNew ? '<span class="new-badge">NEW</span>' : ""}<br><span class="meta">開催：${whenOf(e)}</span><br><span class="posted">${jp(e.posted)} 掲載</span></span>${tag(e.cat)}</li>`;
     }).join("") || `<li class="empty">まだ掲載情報はありません</li>`;
   }
 
   let view = "month", cur = new Date(today.getFullYear(), today.getMonth(), 1), selected = null;
 
-  const dotsFor = s => byDate[s] ? `<div class="dots">${byDate[s].slice(0, 3).map(e => dot(e.cat)).join("")}</div>` : `<div class="dots"></div>`;
+  const dotsFor = s => {
+    const ev = (byDate[s] || []).slice(0, 3).map(e => dot(e.cat)).join("");
+    const rg = regOn(parse(s)).length ? '<span class="dot rg"></span>' : "";
+    return `<div class="dots">${ev}${rg}</div>`;
+  };
 
   function evRow(e) {
-    const past = e.date < TODAY;
+    const past = lastDay(e) < TODAY;
     return `<div class="ev ${e.cat.key === "youth" ? "y" : ""} ${past ? "past" : ""}" data-id="${e.id}">${dateBox(e.date)}<div>
       ${tag(e.cat)}${e.tentative ? ' <span class="tag" style="background:#fff4d6;color:#8a6200">日程予定</span>' : ""}${past ? ' <span class="tag" style="background:#eee;color:#888">終了</span>' : ""}
-      <h4>${esc(e.title)}</h4><div class="meta">${where(e)}</div></div>${e.images.length ? `<img class="thumb" src="${esc(e.images[0].thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ""}</div>`;
+      <h4>${esc(e.title)}</h4><div class="date-line">${whenOf(e)}</div><div class="meta">${where(e)}</div></div>${e.images.length ? `<img class="thumb" src="${esc(e.images[0].thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ""}</div>`;
   }
-  function renderList(title, evs, emptyMsg) {
-    $("listArea").innerHTML = `<p class="list-title">${title}</p><div class="list">${evs.length ? evs.map(evRow).join("") : `<div class="empty">${emptyMsg}</div>`}</div>`;
+  // 定期活動の行（点線・控えめ）
+  const rgRow = (r, label) => `<a class="ev rg" href="regular.html#${r.id}"><div class="rg-when">${esc(label)}</div><div>
+      <span class="tag" style="background:${r.cat.bg};color:${r.cat.fg}">${esc(r.cat.label)}</span> <span class="tag rg-tag">定期活動</span>
+      <h4>${esc(r.name)}</h4><div class="meta">${esc(window.HC.whenText(r))}${r.place ? "｜" + esc(r.place) : ""}</div></div></a>`;
+  function renderList(title, evs, emptyMsg, regs) {
+    regs = regs || [];
+    const body = evs.map(evRow).join("") + regs.map(x => rgRow(x.r, x.label)).join("");
+    $("listArea").innerHTML = `<p class="list-title">${title}</p><div class="list">${body || `<div class="empty">${emptyMsg}</div>`}</div>`;
+  }
+  // 期間中の定期活動（同じ活動は1回だけ、最初の日を表示）
+  function regsBetween(s, e) {
+    if (!showRegular) return [];
+    const out = [];
+    REGULAR.forEach(r => {
+      const ds = [];
+      for (let d = new Date(s); d <= e; d = addDays(d, 1)) if (window.HC.occursOn(r, d)) ds.push(d);
+      if (ds.length) out.push({ r, label: ds.length === 1 ? jp(ds[0]) : `${ds.length}回（${ds.map(d => d.getDate() + "日").join("・")}）` });
+    });
+    return out;
   }
 
   function renderMonth() {
@@ -172,20 +147,23 @@
       const d = addDays(start, i), s = ymd(d);
       if (i >= 35 && d.getMonth() !== m) break;
       const has = !!byDate[s], yy = has && byDate[s].some(e => e.cat.key === "youth");
-      const cls = ["cell", d.getMonth() !== m ? "out" : "", has ? "has" : "", yy ? "y" : "", s === TODAY ? "today" : "", s === selected ? "sel" : ""].join(" ");
-      cells += `<div class="${cls}" ${has ? `data-day="${s}"` : ""}>${d.getDate()}${dotsFor(s)}</div>`;
+      const rg = !has && regOn(d).length > 0;
+      const cls = ["cell", d.getMonth() !== m ? "out" : "", has ? "has" : "", rg ? "rgday" : "", yy ? "y" : "", s === TODAY ? "today" : "", s === selected ? "sel" : ""].join(" ");
+      cells += `<div class="${cls}" ${has || rg ? `data-day="${s}"` : ""}>${d.getDate()}${dotsFor(s)}</div>`;
     }
     const used = [...new Set(dated.map(e => e.cat))];
     $("calCard").innerHTML = `
       <div class="cal-nav"><button class="navbtn" data-nav="-1" aria-label="前の月">‹</button>
         <h3>${y}年 ${m + 1}月</h3><button class="navbtn" data-nav="1" aria-label="次の月">›</button></div>
       <div class="grid">${WD.map((w, i) => `<div class="dow ${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${w}</div>`).join("")}${cells}</div>
-      <div class="legend">${used.map(c => `<span>${dot(c)}${esc(c.label)}</span>`).join("")}<span>日付をタップでその日のイベントを表示</span></div>`;
+      <div class="legend">${used.map(c => `<span>${dot(c)}${esc(c.label)}</span>`).join("")}${showRegular ? '<span><span class="dot rg"></span>定期活動</span>' : ""}<span>日付をタップでその日のイベントを表示</span></div>`;
 
-    if (selected) renderList(`${jp(selected)}のイベント`, byDate[selected] || [], "この日のイベントはありません");
-    else {
-      const prefix = `${y}-${pad(m + 1)}`;
-      renderList(`${m + 1}月のイベント`, dated.filter(e => e.date.startsWith(prefix)), `${m + 1}月のイベントはまだありません`);
+    if (selected) {
+      const sd = parse(selected);
+      renderList(`${jp(selected)}のイベント`, byDate[selected] || [], "この日のイベントはありません", regOn(sd).map(r => ({ r, label: jp(sd) })));
+    } else {
+      const ms = `${y}-${pad(m + 1)}-01`, me = ymd(new Date(y, m + 1, 0));
+      renderList(`${y}年${m + 1}月のイベント`, dated.filter(e => e.date <= me && lastDay(e) >= ms), `${y}年${m + 1}月のイベントはまだありません`, regsBetween(new Date(y, m, 1), new Date(y, m + 1, 0)));
     }
   }
 
@@ -194,12 +172,12 @@
     let days = "";
     for (let i = 0; i < 7; i++) {
       const d = addDays(s, i), k = ymd(d);
-      days += `<div class="wday ${byDate[k] ? "has" : ""} ${k === TODAY ? "today" : ""}"><div class="wd">${WD[d.getDay()]}</div><div class="dn">${d.getDate()}</div>${dotsFor(k)}</div>`;
+      days += `<div class="wday ${byDate[k] ? "has" : ""} ${!byDate[k] && regOn(d).length ? "rgday" : ""} ${k === TODAY ? "today" : ""}"><div class="wd">${WD[d.getDay()]}</div><div class="dn">${d.getDate()}</div>${dotsFor(k)}</div>`;
     }
     const name = offset ? "来週" : "今週";
-    const label = `${s.getMonth() + 1}/${s.getDate()}（月）〜 ${e.getMonth() + 1}/${e.getDate()}（日）`;
+    const label = jpRange(ymd(s), ymd(e));
     $("calCard").innerHTML = `<div class="cal-nav"><h3>${name}<span class="meta" style="font-weight:500;margin-left:8px">${label}</span></h3></div><div class="week">${days}</div>`;
-    renderList(`${name}のイベント`, dated.filter(x => x.date >= ymd(s) && x.date <= ymd(e)), `${name}のイベントはありません`);
+    renderList(`${name}のイベント`, dated.filter(x => x.date <= ymd(e) && lastDay(x) >= ymd(s)), `${name}のイベントはありません`, regsBetween(s, e));
   }
 
   const renderCal = () => view === "month" ? renderMonth() : renderWeek(view === "next" ? 1 : 0);
@@ -214,7 +192,7 @@
     const e = EVENTS.find(x => x.id === id); if (!e) return;
     const url = safeUrl(e.apply);
     const rows = [
-      ["日時", e.date ? jp(e.date) + (e.tentative ? "（予定）" : "") + (e.time ? " " + esc(e.time) : "") : "日程調整中"],
+      ["日時", whenOf(e) + (e.date && e.time ? " " + esc(e.time) : "")],
       ["場所", esc(e.place)], ["参加費", esc(e.price)], ["定員", esc(e.capacity)],
       ["参加条件", esc(e.conditions)],
       ["申込締切", e.deadline ? jp(e.deadline) : ""],
@@ -263,20 +241,46 @@
     const t = ev.target.closest("[data-id]"); if (t) openModal(t.dataset.id);
   });
 
+  /* ---------- 定期活動・サークル ---------- */
+  $("regToggle").addEventListener("click", () => {
+    showRegular = !showRegular;
+    $("regToggle").setAttribute("aria-pressed", String(showRegular));
+    renderCal();
+  });
+
+  function renderRegularBand() {
+    const pick = window.HC.pickForTop(REGULAR, 4), t1 = addDays(today, 1);
+    $("regCount").textContent = REGULAR.length;
+    $("regBand").innerHTML = pick.length ? pick.map(r => {
+      const badge = window.HC.occursOn(r, today) ? '<span class="count">今日あり</span>' : window.HC.occursOn(r, t1) ? '<span class="count">明日あり</span>' : "";
+      return `<a class="rcard" href="regular.html#${r.id}">
+        <div><span class="tag" style="background:${r.cat.bg};color:${r.cat.fg}">${esc(r.cat.label)}</span>${r.visit ? ' <span class="tag visit">見学OK</span>' : ""} ${badge}</div>
+        <h3>${esc(r.name)}</h3>
+        <div class="meta"><b>${esc(window.HC.whenText(r))}</b><br>${esc(r.place)}</div>
+        ${r.checked ? `<div class="checked">最終確認：${jp(r.checked)}</div>` : ""}</a>`;
+    }).join("") : `<div class="empty">定期活動・サークルの情報は準備中です</div>`;
+  }
+
   /* ---------- 起動 ---------- */
-  $("todayPill").textContent = `今日は ${today.getFullYear()}年${jp(TODAY)}`;
+  $("todayPill").textContent = `今日は ${jp(TODAY)}`;
   $("operator").textContent = CFG.OPERATOR || "";
   if (safeUrl(CFG.FORM_URL)) {
     ["postBtnTop", "postBtn"].forEach(id => $(id).href = CFG.FORM_URL);
     $("postBtnTop").classList.remove("hidden");
-    $("postSec").classList.remove("hidden");
   }
+  if (safeUrl(CFG.REGULAR_FORM_URL)) $("postRegBtn").href = CFG.REGULAR_FORM_URL;
+  else { $("postRegBtn").classList.add("soon"); $("postRegBtn").textContent = "サークルを掲載（準備中）"; $("postRegBtn").removeAttribute("href"); }
+
+  window.HC.loadRegular().then(list => { REGULAR = list; renderRegularBand(); if (EVENTS.length) renderCal(); })
+    .catch(err => { console.error(err); renderRegularBand(); });
 
   loadEvents().then(list => {
     EVENTS = list;
     dated = EVENTS.filter(e => e.date).sort((a, b) => a.date.localeCompare(b.date));
     byDate = {};
-    dated.forEach(e => (byDate[e.date] = byDate[e.date] || []).push(e));
+    dated.forEach(e => {
+      for (let d = parse(e.date), n = 0; ymd(d) <= lastDay(e) && n < 92; d = addDays(d, 1), n++) (byDate[ymd(d)] = byDate[ymd(d)] || []).push(e);
+    });
     $("loading").remove();
     renderYouth(); renderNews(); renderCal(); renderTbd();
   }).catch(err => {

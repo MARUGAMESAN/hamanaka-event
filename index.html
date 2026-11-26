@@ -25,6 +25,15 @@
 <body>
 
 <header>
+  <nav class="topnav" aria-label="メニュー">
+    <div class="wrap">
+      <a class="brand" href="./">はまなかイベントカレンダー</a>
+      <div class="links">
+        <a href="#calendar" class="cur">イベント</a>
+        <a href="regular.html">定期活動・サークル</a>
+      </div>
+    </div>
+  </nav>
   <div class="wrap">
     <div class="logo">HAMANAKA EVENT CALENDAR</div>
     <h1>はまなかイベントカレンダー</h1>
@@ -50,15 +59,25 @@
     <ul class="news" id="news"></ul>
   </section>
 
-  <section>
+  <section id="calendar">
     <div class="sec-head"><h2>イベントカレンダー</h2><span class="en">CALENDAR</span></div>
-    <div class="switch" role="tablist">
-      <button data-view="month" class="on">月別</button>
-      <button data-view="this">今週</button>
-      <button data-view="next">来週</button>
+    <div class="cal-tools">
+      <div class="switch" role="tablist">
+        <button data-view="month" class="on">月別</button>
+        <button data-view="this">今週</button>
+        <button data-view="next">来週</button>
+      </div>
+      <button class="reg-toggle" id="regToggle" aria-pressed="false"><span class="knob"></span>定期活動も表示</button>
     </div>
     <div class="cal-card" id="calCard"></div>
     <div id="listArea"></div>
+  </section>
+
+  <section id="regular">
+    <div class="sec-head"><h2>定期活動・サークル</h2><span class="en">REGULAR</span></div>
+    <p class="sec-lead">毎週・毎月やっている活動です。外の人も参加・見学できるものを載せています。</p>
+    <div class="rband" id="regBand"></div>
+    <a class="more" href="regular.html">一覧を見る（<span id="regCount">0</span>件）→</a>
   </section>
 
   <section id="tbdSec" class="hidden">
@@ -66,11 +85,14 @@
     <div class="tbd" id="tbd"></div>
   </section>
 
-  <section id="postSec" class="hidden">
+  <section id="postSec">
     <div class="post-box">
-      <h2>イベントを掲載しませんか？</h2>
-      <p>浜中町で開催するイベントなら、どなたでも掲載を申請できます。フォームに入力いただいた内容は、運営が確認してから掲載します。</p>
-      <a class="cta" id="postBtn" target="_blank" rel="noopener">掲載を申請する（無料）</a>
+      <h2>イベント・サークルを掲載しませんか？</h2>
+      <p>浜中町のイベントや定期活動なら、どなたでも掲載を申請できます（無料）。いただいた内容は、運営が確認してから掲載します。</p>
+      <div class="post-btns">
+        <a class="cta" id="postBtn" target="_blank" rel="noopener">イベントを掲載</a>
+        <a class="cta sub" id="postRegBtn" target="_blank" rel="noopener">サークルを掲載</a>
+      </div>
     </div>
   </section>
 </main>
@@ -83,6 +105,7 @@
 <div class="modal-bg" id="modalBg"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
 
 <script src="config.js"></script>
+<script src="common.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
