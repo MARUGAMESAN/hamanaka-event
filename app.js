@@ -90,8 +90,18 @@
         organizer: r.organizer || "",
         posted: normDate(r.posted) || "2000-01-01",
         tentative: truthy(r.tentative),
-        conditions: r.conditions || ""
+        conditions: r.conditions || "",
+        images: [r.image1, r.image2].flatMap(driveImgs)
       }));
+  }
+
+  /* Googleフォームの画像（ドライブのURL）→ 表示用URL */
+  function driveImgs(v) {
+    return String(v || "").split(/[\s,]+/).map(u => {
+      const m = u.match(/[?&]id=([\w-]{10,})/) || u.match(/\/d\/([\w-]{10,})/);
+      if (m) return { thumb: `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`, full: `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600`, link: `https://drive.google.com/file/d/${m[1]}/view` };
+      return /^https:\/\/\S+\.(jpe?g|png|gif|webp)(\?\S*)?$/i.test(u) ? { thumb: u, full: u, link: u } : null;
+    }).filter(Boolean);
   }
 
   async function loadEvents() {
@@ -148,7 +158,7 @@
     const past = e.date < TODAY;
     return `<div class="ev ${e.cat.key === "youth" ? "y" : ""} ${past ? "past" : ""}" data-id="${e.id}">${dateBox(e.date)}<div>
       ${tag(e.cat)}${e.tentative ? ' <span class="tag" style="background:#fff4d6;color:#8a6200">日程予定</span>' : ""}${past ? ' <span class="tag" style="background:#eee;color:#888">終了</span>' : ""}
-      <h4>${esc(e.title)}</h4><div class="meta">${where(e)}</div></div></div>`;
+      <h4>${esc(e.title)}</h4><div class="meta">${where(e)}</div></div>${e.images.length ? `<img class="thumb" src="${esc(e.images[0].thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ""}</div>`;
   }
   function renderList(title, evs, emptyMsg) {
     $("listArea").innerHTML = `<p class="list-title">${title}</p><div class="list">${evs.length ? evs.map(evRow).join("") : `<div class="empty">${emptyMsg}</div>`}</div>`;
@@ -211,7 +221,9 @@
       ["申込方法", url ? "" : esc(e.apply)], ["主催", esc(e.organizer)]
     ].filter(r => r[1]);
     $("modal").innerHTML = `<button class="close" aria-label="閉じる">×</button>${tag(e.cat)}
-      <h3>${esc(e.title)}</h3><p>${esc(e.desc)}</p>
+      <h3>${esc(e.title)}</h3>
+      ${e.images.length ? `<div class="pics">${e.images.map(im => `<a href="${esc(im.link)}" target="_blank" rel="noopener"><img src="${esc(im.full)}" alt="${esc(e.title)}のチラシ・画像" loading="lazy" onerror="this.parentNode.remove()"></a>`).join("")}</div>` : ""}
+      <p>${esc(e.desc)}</p>
       <dl>${rows.map(r => `<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join("")}</dl>
       ${url ? `<a class="cta" href="${esc(url)}" target="_blank" rel="noopener">申し込み・詳細はこちら</a>` : ""}
       ${e.tentative ? '<div class="note">日程は予定です。変更になる場合があります。</div>' : ""}`;
