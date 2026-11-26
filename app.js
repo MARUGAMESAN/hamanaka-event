@@ -95,7 +95,8 @@
   }
 
   function renderNews() {
-    const list = [...EVENTS].sort((a, b) => b.posted.localeCompare(a.posted)).slice(0, 8);
+    // 終わったイベントは新着にも出さない
+    const list = EVENTS.filter(e => !e.date || lastDay(e) >= TODAY).sort((a, b) => b.posted.localeCompare(a.posted)).slice(0, 8);
     $("news").innerHTML = list.map(e => {
       const p = parse(e.posted);
       const isNew = (today - p) / 864e5 <= 7;
@@ -160,7 +161,11 @@
 
     {
       const ms = `${y}-${pad(m + 1)}-01`, me = ymd(new Date(y, m + 1, 0));
-      renderList(`${y}年${m + 1}月のイベント`, dated.filter(e => e.date <= me && lastDay(e) >= ms), `${y}年${m + 1}月のイベントはまだありません`, regsBetween(new Date(y, m, 1), new Date(y, m + 1, 0)));
+      // 終わったイベントは一覧に出さない（カレンダーの日付タップでは見られる）
+      const from = ms > TODAY ? ms : TODAY, ended = me < TODAY;
+      renderList(`${y}年${m + 1}月のイベント`, ended ? [] : dated.filter(e => e.date <= me && lastDay(e) >= from),
+        ended ? `${y}年${m + 1}月のイベントは終了しました` : `${y}年${m + 1}月のこれからのイベントはまだありません`,
+        ended ? [] : regsBetween(parse(from), new Date(y, m + 1, 0)));
     }
   }
 
@@ -175,7 +180,8 @@
     const name = offset ? "来週" : "今週";
     const label = jpRange(ymd(s), ymd(e));
     $("calCard").innerHTML = `<div class="cal-nav"><h3>${name}<span class="meta" style="font-weight:500;margin-left:8px">${label}</span></h3></div><div class="week">${days}</div>`;
-    renderList(`${name}のイベント`, dated.filter(x => x.date <= ymd(e) && lastDay(x) >= ymd(s)), `${name}のイベントはありません`, regsBetween(s, e));
+    const from = ymd(s) > TODAY ? ymd(s) : TODAY;
+    renderList(`${name}のイベント`, dated.filter(x => x.date <= ymd(e) && lastDay(x) >= from), `${name}のこれからのイベントはありません`, regsBetween(parse(from), e));
   }
 
   const renderCal = () => view === "month" ? renderMonth() : renderWeek(view === "next" ? 1 : 0);
