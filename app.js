@@ -89,7 +89,8 @@
         desc: r.description || "",
         organizer: r.organizer || "",
         posted: normDate(r.posted) || "2000-01-01",
-        tentative: truthy(r.tentative)
+        tentative: truthy(r.tentative),
+        conditions: r.conditions || ""
       }));
   }
 
@@ -205,6 +206,7 @@
     const rows = [
       ["日時", e.date ? jp(e.date) + (e.tentative ? "（予定）" : "") + (e.time ? " " + esc(e.time) : "") : "日程調整中"],
       ["場所", esc(e.place)], ["参加費", esc(e.price)], ["定員", esc(e.capacity)],
+      ["参加条件", esc(e.conditions)],
       ["申込締切", e.deadline ? jp(e.deadline) : ""],
       ["申込方法", url ? "" : esc(e.apply)], ["主催", esc(e.organizer)]
     ].filter(r => r[1]);
