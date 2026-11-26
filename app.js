@@ -115,7 +115,7 @@
     }).join("") || `<li class="empty">まだ掲載情報はありません</li>`;
   }
 
-  let view = "month", cur = new Date(today.getFullYear(), today.getMonth(), 1);
+  let cur = new Date(today.getFullYear(), today.getMonth(), 1);
 
   const dotsFor = s => {
     const ev = (byDate[s] || []).slice(0, 3).map(e => dot(e.cat)).join("");
@@ -178,32 +178,17 @@
       <div class="grid">${WD.map((w, i) => `<div class="dow ${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${w}</div>`).join("")}${cells}</div>
       <div class="legend">${used.map(c => `<span>${dot(c)}${esc(c.label)}</span>`).join("")}${showRegular ? '<span><span class="dot rg"></span>定期活動</span>' : ""}<span>日付をタップすると、その日のイベントが開きます</span></div>`;
 
-    {
-      const ms = `${y}-${pad(m + 1)}-01`, me = ymd(new Date(y, m + 1, 0));
-      // 終わったイベントは一覧に出さない（カレンダーの日付タップでは見られる）
-      const from = ms > TODAY ? ms : TODAY, ended = me < TODAY;
-      renderList(`${y}年${m + 1}月のイベント`, ended ? [] : dated.filter(e => e.date <= me && lastDay(e) >= from),
-        ended ? `${y}年${m + 1}月のイベントは終了しました` : `${y}年${m + 1}月のこれからのイベントはまだありません`,
-        ended ? [] : regsBetween(parse(from), new Date(y, m + 1, 0)));
-    }
   }
 
-  function renderWeek(offset) {
-    const s = addDays(weekStart(today), offset * 7), e = addDays(s, 6);
-    let days = "";
-    for (let i = 0; i < 7; i++) {
-      const d = addDays(s, i), k = ymd(d);
-      const tap = byDate[k] || regOn(d).length;
-      days += `<div class="wday ${byDate[k] ? "has" : ""} ${!byDate[k] && regOn(d).length ? "rgday" : ""} ${k === TODAY ? "today" : ""}" ${tap ? `data-day="${k}"` : ""}><div class="wd">${WD[d.getDay()]}</div><div class="dn">${d.getDate()}</div>${dotsFor(k)}</div>`;
-    }
-    const name = offset ? "来週" : "今週";
-    const label = jpRange(ymd(s), ymd(e));
-    $("calCard").innerHTML = `<div class="cal-nav"><h3>${name}<span class="meta" style="font-weight:500;margin-left:8px">${label}</span></h3></div><div class="week">${days}</div>`;
-    const from = ymd(s) > TODAY ? ymd(s) : TODAY;
-    renderList(`${name}のイベント`, dated.filter(x => x.date <= ymd(e) && lastDay(x) >= from), `${name}のこれからのイベントはありません`, regsBetween(parse(from), e));
+  /* カレンダーの上：今週（月曜〜日曜）のこれからのイベント */
+  function renderThisWeek() {
+    const s = weekStart(today), e = addDays(s, 6);
+    const evs = dated.filter(x => x.date <= ymd(e) && lastDay(x) >= TODAY);
+    renderList(`今週のイベント<span class="list-range">${jpRange(ymd(s), ymd(e))}</span>`, evs,
+      "今週のイベントはありません。来週以降の予定は下のカレンダーの日付をタップしてください", regsBetween(today, e));
   }
 
-  const renderCal = () => view === "month" ? renderMonth() : renderWeek(view === "next" ? 1 : 0);
+  const renderCal = () => { renderThisWeek(); renderMonth(); };
 
   function renderTbd() {
     const t = EVENTS.filter(e => !e.date);
@@ -281,13 +266,6 @@
   }
 
   /* ---------- イベント操作 ---------- */
-  document.querySelector(".switch").addEventListener("click", ev => {
-    const b = ev.target.closest("button"); if (!b) return;
-    document.querySelectorAll(".switch button").forEach(x => x.classList.toggle("on", x === b));
-    view = b.dataset.view;
-    if (view === "month") cur = new Date(today.getFullYear(), today.getMonth(), 1);
-    renderCal();
-  });
   $("calCard").addEventListener("click", ev => {
     const nav = ev.target.closest("[data-nav]");
     if (nav) { cur = new Date(cur.getFullYear(), cur.getMonth() + Number(nav.dataset.nav), 1); return renderMonth(); }

@@ -253,3 +253,9 @@ header .wrap.page-head{padding-top:26px}
 @media(min-width:640px){
   .slim{grid-template-columns:200px 1fr auto;grid-template-areas:"date main arrow"}
 }
+
+/* ---------- 今週のイベント（カレンダーの上） ---------- */
+#listArea .list-title{margin-top:0;flex-wrap:wrap}
+.list-range{order:3;flex-basis:100%;font-size:12px;font-weight:500;color:var(--sub)}
+#listArea + .cal-tools{margin-top:22px}
+#listArea .empty{text-align:left}
