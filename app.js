@@ -35,6 +35,13 @@
   // イベントごとの固定ID（イベント名＋掲載日から作る。共有リンク ?e=xxxx に使う）
   const hashId = str => { let h = 5381; for (const ch of str) h = ((h * 33) ^ ch.codePointAt(0)) >>> 0; return "e" + h.toString(36); };
 
+  // 「2026/11/26 1:38:00」→「2026-11-26 01:38:00」（並べ替え用。時刻がなければ日付だけ）
+  function postedKey(v) {
+    const d = normDate(v) || "2000-01-01";
+    const t = String(v || "").match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    return t ? `${d} ${pad(t[1])}:${t[2]}:${t[3] || "00"}` : d;
+  }
+
   function normalize(list) {
     const used = {};
     return list
@@ -45,8 +52,10 @@
         used[id] = 1;
         return Object.assign({ id }, r);
       })
-      .map(r => ({
+      .map((r, i) => ({
         id: r.id,
+        row: i,
+        postedAt: postedKey(r.posted),
         title: r.title.trim(),
         date: normDate(r.date) || null,
         end: normDate(r.end || r.endDate || r["終了日"]) || null,
@@ -106,7 +115,7 @@
 
   function renderNews() {
     // 終わったイベントは新着にも出さない
-    const list = EVENTS.filter(e => !e.date || lastDay(e) >= TODAY).sort((a, b) => b.posted.localeCompare(a.posted)).slice(0, 8);
+    const list = EVENTS.filter(e => !e.date || lastDay(e) >= TODAY).sort((a, b) => b.postedAt.localeCompare(a.postedAt) || b.row - a.row).slice(0, 8);
     $("news").innerHTML = list.map(e => {
       const p = parse(e.posted);
       const isNew = (today - p) / 864e5 <= 7;
