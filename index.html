@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261126h">
+<link rel="stylesheet" href="style.css?v=20261127a">
 </head>
 <body>
 
@@ -39,7 +39,10 @@
     <h1>はまなかイベントカレンダー</h1>
     <p class="lead">浜中町のイベント情報を、ここでまとめてチェック。</p>
     <span class="today-pill" id="todayPill"></span>
-    <a class="post-btn hidden" id="postBtnTop" target="_blank" rel="noopener">＋ イベントを掲載する</a>
+    <div class="head-btns">
+      <a class="post-btn hidden" id="postBtnTop" target="_blank" rel="noopener">＋ イベントを掲載する</a>
+      <a class="line-btn sm hidden" data-line data-line-link target="_blank" rel="noopener">LINEでイベントをチェック</a>
+    </div>
   </div>
   <svg class="waves" viewBox="0 0 1200 46" preserveAspectRatio="none"><path d="M0,24 C150,46 300,4 450,22 C600,40 750,6 900,22 C1050,38 1125,16 1200,20 L1200,46 L0,46 Z" fill="#fbfaf7"/></svg>
 </header>
@@ -90,6 +93,17 @@
       </div>
     </div>
   </section>
+
+  <section id="lineSec" class="line-sec hidden" data-line>
+    <div class="line-box">
+      <div class="line-ic" aria-hidden="true">LINE</div>
+      <div class="line-txt">
+        <h2>公式LINEで、もっと手軽に</h2>
+        <p>友だち追加して「今週」「明日」「サークル」と送るだけで、イベント情報が返ってきます。メニューのボタンを押すだけでもOK。</p>
+      </div>
+      <a class="line-btn" data-line-link target="_blank" rel="noopener">LINEでイベントをチェック</a>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -99,8 +113,8 @@
 
 <div class="modal-bg" id="modalBg"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
 
-<script src="config.js?v=20261126h"></script>
-<script src="common.js?v=20261126h"></script>
-<script src="app.js?v=20261126h"></script>
+<script src="config.js?v=20261127a"></script>
+<script src="common.js?v=20261127a"></script>
+<script src="app.js?v=20261127a"></script>
 </body>
 </html>

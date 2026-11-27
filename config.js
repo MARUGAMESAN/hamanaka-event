@@ -17,6 +17,9 @@ window.SITE_CONFIG = {
   // 「サークルを掲載」ボタンのフォームURL（空のままだと「準備中」と表示）
   REGULAR_FORM_URL: "https://forms.gle/qxWPcJKKXZq7FkZu5",
 
+  // 公式LINEの友だち追加URL（空のままだとLINEのボタンは表示されません）
+  LINE_URL: "https://lin.ee/xO0jxrX",
+
   // フッターに出す運営者名
   OPERATOR: "SPARK NODE HAMANAKA"
 };

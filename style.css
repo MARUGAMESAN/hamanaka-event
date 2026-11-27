@@ -259,3 +259,19 @@ header .wrap.page-head{padding-top:26px}
 .list-range{order:3;flex-basis:100%;font-size:12px;font-weight:500;color:var(--sub)}
 #listArea + .cal-tools{margin-top:22px}
 #listArea .empty{text-align:left}
+
+/* ---------- 公式LINE ---------- */
+.head-btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.head-btns .post-btn{margin:0}
+.line-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#06c755;color:#fff;font-weight:900;text-decoration:none;border-radius:999px;padding:13px 22px;font-size:15px;box-shadow:0 4px 14px rgba(6,199,85,.3);white-space:nowrap}
+.line-btn::before{content:"";flex:0 0 auto;width:20px;height:20px;border-radius:6px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2306c755' d='M12 4C7 4 3 7.2 3 11.1c0 3.5 3.1 6.4 7.3 7l.3 2c.1.5.6.6 1 .3 1.6-1.1 5.6-3.6 7.2-5.7.9-1.1 1.4-2.3 1.4-3.6C21 7.2 17 4 12 4z'/%3E%3C/svg%3E") center/16px no-repeat}
+.line-btn:hover{filter:brightness(1.05)}
+.line-btn.sm{padding:5px 14px 5px 8px;font-size:13px;gap:6px;box-shadow:none}
+.line-btn.sm::before{width:17px;height:17px;border-radius:5px;background-size:13px}
+.line-sec{margin-top:26px}
+.line-box{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:#e9f9ef;border:2px solid #b9ebcb;border-radius:20px;padding:22px}
+.line-ic{flex:0 0 auto;width:58px;height:58px;border-radius:16px;background:#06c755;color:#fff;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center}
+.line-txt{flex:1 1 260px;min-width:0}
+.line-txt h2{font-size:19px;margin:0 0 6px;color:var(--ink)}
+.line-txt p{margin:0;color:var(--sub);font-size:14px;line-height:1.7}
+@media (max-width:560px){.line-box .line-btn{width:100%}}

@@ -153,6 +153,12 @@
 
   const loadRegular = () => loadRows(CFG.REGULAR_CSV_URL, "data/regular.json").then(normalizeRegular);
 
+  // 公式LINEの友だち追加ボタン（config.js の LINE_URL があるときだけ表示）
+  if (safeUrl(CFG.LINE_URL)) {
+    document.querySelectorAll("[data-line-link]").forEach(a => { a.href = CFG.LINE_URL; });
+    document.querySelectorAll("[data-line]").forEach(el => el.classList.remove("hidden"));
+  }
+
   window.HC = {
     CFG, WD, esc, pad, ymd, parse, addDays, today, TODAY, jp, jpRange, normDate, truthy, safeUrl,
     parseCSV, loadRows, RCATS, rcatOf, loadRegular, occursOn, whenText, contactLink, pickForTop
