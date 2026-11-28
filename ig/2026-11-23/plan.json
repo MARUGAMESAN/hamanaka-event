@@ -1,0 +1,80 @@
+[
+ {
+  "id": "2026-11-23/s_week",
+  "date": "2026-11-23",
+  "time": "7:00",
+  "kind": "story",
+  "type": "ストーリーズ",
+  "label": "今週のイベント（5件）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/s_week.jpg"
+  ],
+  "caption": ""
+ },
+ {
+  "id": "2026-11-23/carousel",
+  "date": "2026-11-23",
+  "time": "7:00",
+  "kind": "carousel",
+  "type": "カルーセル",
+  "label": "今週のはまなか（5件・7枚）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/c_01.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/c_02.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/c_03.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/c_04.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/c_05.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/c_06.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/c_07.jpg"
+  ],
+  "caption": "📅 今週のはまなか（11/23〜11/29）\n\n浜中町で今週開かれるイベントは 5件 です✨\nスワイプしてチェックしてください👉\n\n・11/27（金）バトミントンをやろう 18:00\n・11/28（土）令和８年度第２回共生型行事「地活秋まつり」 10:30\n・11/28（土）語らないとvol.4 12:00\n・11/28（土）フロアボールイベント 14:30\n・11/29（日）ご褒美cafe Amatou 13:00〜15:00\n\nくわしい内容・申し込みは、プロフィールのリンク（はまなかイベントカレンダー）から。\n公式LINEで「今週」と送ると、いつでもイベント情報が届きます。\n\n#浜中町 #霧多布 #はまなか #浜中町イベント #釧路イベント #道東イベント #北海道イベント #霧多布湿原 #はまなかイベントカレンダー"
+ },
+ {
+  "id": "2026-11-23/s_today_2026-11-27",
+  "date": "2026-11-27",
+  "time": "7:00",
+  "kind": "story",
+  "type": "ストーリーズ",
+  "label": "今日のイベント 11/27（金）（1件）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/s_today_2026-11-27.jpg"
+  ],
+  "caption": ""
+ },
+ {
+  "id": "2026-11-23/s_weekend",
+  "date": "2026-11-27",
+  "time": "7:00",
+  "kind": "story",
+  "type": "ストーリーズ",
+  "label": "今週末のイベント（4件）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/s_weekend.jpg"
+  ],
+  "caption": ""
+ },
+ {
+  "id": "2026-11-23/s_today_2026-11-28",
+  "date": "2026-11-28",
+  "time": "7:00",
+  "kind": "story",
+  "type": "ストーリーズ",
+  "label": "今日のイベント 11/28（土）（3件）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/s_today_2026-11-28.jpg"
+  ],
+  "caption": ""
+ },
+ {
+  "id": "2026-11-23/s_today_2026-11-29",
+  "date": "2026-11-29",
+  "time": "7:00",
+  "kind": "story",
+  "type": "ストーリーズ",
+  "label": "今日のイベント 11/29（日）（1件）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-23/s_today_2026-11-29.jpg"
+  ],
+  "caption": ""
+ }
+]
