@@ -275,3 +275,19 @@ header .wrap.page-head{padding-top:26px}
 .line-txt h2{font-size:19px;margin:0 0 6px;color:var(--ink)}
 .line-txt p{margin:0;color:var(--sub);font-size:14px;line-height:1.7}
 @media (max-width:560px){.line-box .line-btn{width:100%}}
+
+/* ---------- 祝日・土日 ---------- */
+.cell .num{line-height:1.25}
+.cell.sun .num,.cell.hol .num{color:#d64545}
+.cell.sat .num{color:#2f6fb5}
+.cell.hol .num{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.cell.hol{cursor:pointer}
+.cell.sel .num{color:#fff}
+.hol-mark{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:#fde8e8;color:#d64545;font-size:11px;font-weight:900;text-decoration:underline;text-underline-offset:2px}
+.hol-name{display:inline-block;margin:6px 0 0;padding:4px 12px;border-radius:99px;background:#fde8e8;color:#c03a3a;font-size:14px;font-weight:800}
+
+/* ---------- お問い合わせ ---------- */
+.contact-note{margin:16px 0 0;font-size:13px;color:var(--sub)}
+.contact-note a{color:var(--sea2);font-weight:800}
+footer a.foot-contact{color:#fff;font-weight:700}
+footer .foot-contact-line{display:block;margin:2px 0 8px}

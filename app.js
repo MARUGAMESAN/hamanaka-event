@@ -28,7 +28,7 @@
   const CAT_INDEX = {};
   Object.keys(CATS).forEach(k => CAT_INDEX[catKey(k)] = CATS[k]);
   const catOf = name => CAT_INDEX[catKey(name)] || CATS["その他"];
-  const { WD, esc, pad, ymd, parse, addDays, today, TODAY, jp, jpRange, normDate, truthy, safeUrl, parseCSV } = window.HC;
+  const { WD, esc, pad, ymd, parse, addDays, today, TODAY, jp, jpRange, normDate, truthy, safeUrl, parseCSV, holidayName } = window.HC;
   const weekStart = d => addDays(d, -((d.getDay() + 6) % 7)); // 月曜はじまり
   const daysUntil = s => Math.round((parse(s) - today) / 864e5);
 
@@ -177,15 +177,17 @@
       if (i >= 35 && d.getMonth() !== m) break;
       const has = !!byDate[s], yy = has && byDate[s].some(e => e.cat.key === "youth");
       const rg = !has && regOn(d).length > 0;
-      const cls = ["cell", d.getMonth() !== m ? "out" : "", has ? "has" : "", rg ? "rgday" : "", yy ? "y" : "", s === TODAY ? "today" : "", ""].join(" ");
-      cells += `<div class="${cls}" ${has || rg ? `data-day="${s}"` : ""}>${d.getDate()}${dotsFor(s)}</div>`;
+      const hol = holidayName(d);
+      const cls = ["cell", d.getMonth() !== m ? "out" : "", has ? "has" : "", rg ? "rgday" : "", yy ? "y" : "", s === TODAY ? "today" : "",
+        hol ? "hol" : d.getDay() === 0 ? "sun" : d.getDay() === 6 ? "sat" : ""].join(" ");
+      cells += `<div class="${cls}" ${has || rg || hol ? `data-day="${s}"` : ""}${hol ? ` title="${esc(hol)}"` : ""}><span class="num">${d.getDate()}</span>${dotsFor(s)}</div>`;
     }
     const used = [...new Set(dated.map(e => e.cat))];
     $("calCard").innerHTML = `
       <div class="cal-nav"><button class="navbtn" data-nav="-1" aria-label="前の月">‹</button>
         <h3>${y}年 ${m + 1}月</h3><button class="navbtn" data-nav="1" aria-label="次の月">›</button></div>
       <div class="grid">${WD.map((w, i) => `<div class="dow ${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${w}</div>`).join("")}${cells}</div>
-      <div class="legend">${used.map(c => `<span>${dot(c)}${esc(c.label)}</span>`).join("")}${showRegular ? '<span><span class="dot rg"></span>定期活動</span>' : ""}<span>日付をタップすると、その日のイベントが開きます</span></div>`;
+      <div class="legend">${used.map(c => `<span>${dot(c)}${esc(c.label)}</span>`).join("")}${showRegular ? '<span><span class="dot rg"></span>定期活動</span>' : ""}<span><span class="hol-mark">祝</span>祝日（下線）</span><span>日付をタップすると、その日のイベントが開きます</span></div>`;
 
   }
 
@@ -235,7 +237,7 @@
     const d = parse(s), evs = byDate[s] || [], regs = regOn(d);
     dayCtx = s;
     $("modal").innerHTML = `<button class="close" aria-label="閉じる">×</button>
-      <p class="day-sub">${evs.length + regs.length}件</p><h3>${jp(s)}</h3>
+      <p class="day-sub">${evs.length + regs.length}件</p><h3>${jp(s)}</h3>${holidayName(d) ? `<p class="hol-name">🎌 ${esc(holidayName(d))}</p>` : ""}
       <div class="list day-list">${evs.map(evRow).join("") + regs.map(r => rgRow(r, "定期")).join("") || '<div class="empty">この日のイベントはありません</div>'}</div>`;
     $("modalBg").classList.add("open");
     $("modal").scrollTop = 0;

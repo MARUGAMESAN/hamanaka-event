@@ -20,6 +20,9 @@ window.SITE_CONFIG = {
   // 公式LINEの友だち追加URL（空のままだとLINEのボタンは表示されません）
   LINE_URL: "https://lin.ee/xO0jxrX",
 
+  // お問い合わせフォームのURL（空のままだとお問い合わせのリンクは表示されません）
+  CONTACT_URL: "https://forms.gle/BH6mjGzeyhJpRUx88",
+
   // フッターに出す運営者名
   OPERATOR: "SPARK NODE HAMANAKA"
 };

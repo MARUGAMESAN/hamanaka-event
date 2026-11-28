@@ -151,6 +151,48 @@
     return [...list].sort((a, b) => rank(a) - rank(b) || (b.checked || "").localeCompare(a.checked || "")).slice(0, n);
   }
 
+  /* ---------- 日本の祝日（法律のきまりから計算。振替休日・国民の休日も） ---------- */
+  const holCache = {};
+  function holidaysOf(y) {
+    if (holCache[y]) return holCache[y];
+    const h = {};
+    const put = (m, d, name) => { h[ymd(new Date(y, m - 1, d))] = name; };
+    const nthMon = (m, n) => { const f = new Date(y, m - 1, 1); return 1 + ((8 - f.getDay()) % 7) + (n - 1) * 7; };
+    const k = y - 1980, leap = Math.floor(k / 4);
+    put(1, 1, "元日");
+    put(1, nthMon(1, 2), "成人の日");
+    put(2, 11, "建国記念の日");
+    put(2, 23, "天皇誕生日");
+    put(3, Math.floor(20.8431 + 0.242194 * k - leap), "春分の日");
+    put(4, 29, "昭和の日");
+    put(5, 3, "憲法記念日");
+    put(5, 4, "みどりの日");
+    put(5, 5, "こどもの日");
+    put(7, nthMon(7, 3), "海の日");
+    put(8, 11, "山の日");
+    put(9, nthMon(9, 3), "敬老の日");
+    put(9, Math.floor(23.2488 + 0.242194 * k - leap), "秋分の日");
+    put(10, nthMon(10, 2), "スポーツの日");
+    put(11, 3, "文化の日");
+    put(11, 23, "勤労感謝の日");
+    const base = Object.keys(h).sort();
+    // 国民の休日：祝日にはさまれた平日
+    base.forEach(s => {
+      const mid = addDays(parse(s), 1), next = ymd(addDays(mid, 1));
+      if (h[next] && !h[ymd(mid)] && mid.getDay() !== 0) h[ymd(mid)] = "国民の休日";
+    });
+    // 振替休日：祝日が日曜なら、その後の最初の祝日でない日
+    base.forEach(s => {
+      const d = parse(s);
+      if (d.getDay() !== 0) return;
+      let x = addDays(d, 1);
+      while (h[ymd(x)]) x = addDays(x, 1);
+      h[ymd(x)] = "振替休日";
+    });
+    return (holCache[y] = h);
+  }
+  const holidayName = v => { const d = typeof v === "string" ? parse(v) : v; return holidaysOf(d.getFullYear())[ymd(d)] || ""; };
+
   const loadRegular = () => loadRows(CFG.REGULAR_CSV_URL, "data/regular.json").then(normalizeRegular);
 
   // 公式LINEの友だち追加ボタン（config.js の LINE_URL があるときだけ表示）
@@ -159,8 +201,14 @@
     document.querySelectorAll("[data-line]").forEach(el => el.classList.remove("hidden"));
   }
 
+  // お問い合わせフォーム（config.js の CONTACT_URL があるときだけ表示）
+  if (safeUrl(CFG.CONTACT_URL)) {
+    document.querySelectorAll("[data-contact-link]").forEach(a => { a.href = CFG.CONTACT_URL; });
+    document.querySelectorAll("[data-contact]").forEach(el => el.classList.remove("hidden"));
+  }
+
   window.HC = {
-    CFG, WD, esc, pad, ymd, parse, addDays, today, TODAY, jp, jpRange, normDate, truthy, safeUrl,
+    CFG, WD, esc, pad, ymd, parse, addDays, today, TODAY, jp, jpRange, normDate, truthy, safeUrl, holidayName,
     parseCSV, loadRows, RCATS, rcatOf, loadRegular, occursOn, whenText, contactLink, pickForTop
   };
 })();
