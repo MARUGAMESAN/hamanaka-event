@@ -238,6 +238,12 @@
 
   const loadRegular = () => loadRows(CFG.REGULAR_CSV_URL, "data/regular.json").then(normalizeRegular);
 
+  // Instagram のボタン（config.js の INSTAGRAM_URL があるときだけ表示）
+  if (safeUrl(CFG.INSTAGRAM_URL)) {
+    document.querySelectorAll("[data-ig-link]").forEach(a => { a.href = CFG.INSTAGRAM_URL; });
+    document.querySelectorAll("[data-ig]").forEach(el => el.classList.remove("hidden"));
+  }
+
   // 公式LINEの友だち追加ボタン（config.js の LINE_URL があるときだけ表示）
   if (safeUrl(CFG.LINE_URL)) {
     document.querySelectorAll("[data-line-link]").forEach(a => { a.href = CFG.LINE_URL; });

@@ -21,6 +21,9 @@ window.SITE_CONFIG = {
   // 空のままだと data/outside.json を読み込みます
   OUTSIDE_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5XMqcV_k7QEOYoCVN6wTt7Ju9E1ei3hIfikLu8zCYZ9tekO7D6JdqsOfklAmTEM-VgkH0Lc2r9pUX/pub?gid=520000002&single=true&output=csv",
 
+  // InstagramのURL（空のままだとInstagramのボタンは表示されません）
+  INSTAGRAM_URL: "https://www.instagram.com/hamanaka_event_calendar/",
+
   // 公式LINEの友だち追加URL（空のままだとLINEのボタンは表示されません）
   LINE_URL: "https://lin.ee/xO0jxrX",
 
