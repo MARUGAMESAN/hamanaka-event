@@ -1,0 +1,66 @@
+[
+ {
+  "id": "2026-11-30/s_week",
+  "date": "2026-11-30",
+  "time": "7:00",
+  "kind": "story",
+  "type": "ストーリーズ",
+  "label": "今週のイベント（3件）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-30/s_week.jpg"
+  ],
+  "caption": ""
+ },
+ {
+  "id": "2026-11-30/carousel",
+  "date": "2026-11-30",
+  "time": "7:00",
+  "kind": "carousel",
+  "type": "カルーセル",
+  "label": "今週のはまなか（3件・5枚）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-30/c_01.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-30/c_02.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-30/c_03.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-30/c_04.jpg",
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-30/c_05.jpg"
+  ],
+  "caption": "📅 今週のはまなか（11/30〜12/6）\n\n浜中町で今週開かれるイベントは 3件 です✨\nスワイプしてチェックしてください👉\n\n・12/5（土）あつまれ わかものの夜「忘年会」 18:30〜21:00（出入り自由）\n・12/6（日）ウニツアー(ウニ丼作り体験) 11:00\n・12/6（日）保護猫譲渡予約会 13:00\n\nくわしい内容・申し込みは、プロフィールのリンク（はまなかイベントカレンダー）から。\n公式LINEで「今週」と送ると、いつでもイベント情報が届きます。\n\n#浜中町 #霧多布 #はまなか #浜中町イベント #釧路イベント #道東イベント #北海道イベント #霧多布湿原 #はまなかイベントカレンダー"
+ },
+ {
+  "id": "2026-11-30/s_weekend",
+  "date": "2026-12-04",
+  "time": "7:00",
+  "kind": "story",
+  "type": "ストーリーズ",
+  "label": "今週末のイベント（3件）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-30/s_weekend.jpg"
+  ],
+  "caption": ""
+ },
+ {
+  "id": "2026-11-30/s_today_2026-12-05",
+  "date": "2026-12-05",
+  "time": "7:00",
+  "kind": "story",
+  "type": "ストーリーズ",
+  "label": "今日のイベント 12/5（土）（1件）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-30/s_today_2026-12-05.jpg"
+  ],
+  "caption": ""
+ },
+ {
+  "id": "2026-11-30/s_today_2026-12-06",
+  "date": "2026-12-06",
+  "time": "7:00",
+  "kind": "story",
+  "type": "ストーリーズ",
+  "label": "今日のイベント 12/6（日）（2件）",
+  "files": [
+   "https://marugamesan.github.io/hamanaka-event/ig/2026-11-30/s_today_2026-12-06.jpg"
+  ],
+  "caption": ""
+ }
+]
