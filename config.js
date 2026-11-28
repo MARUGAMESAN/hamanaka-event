@@ -17,6 +17,10 @@ window.SITE_CONFIG = {
   // 「サークルを掲載」ボタンのフォームURL（空のままだと「準備中」と表示）
   REGULAR_FORM_URL: "https://forms.gle/qxWPcJKKXZq7FkZu5",
 
+  // 町外イベント：スプレッドシート「町外_公開用」タブを「ウェブに公開（CSV）」したURL
+  // 空のままだと data/outside.json を読み込みます
+  OUTSIDE_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5XMqcV_k7QEOYoCVN6wTt7Ju9E1ei3hIfikLu8zCYZ9tekO7D6JdqsOfklAmTEM-VgkH0Lc2r9pUX/pub?gid=520000002&single=true&output=csv",
+
   // 公式LINEの友だち追加URL（空のままだとLINEのボタンは表示されません）
   LINE_URL: "https://lin.ee/xO0jxrX",
 

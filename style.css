@@ -291,3 +291,17 @@ header .wrap.page-head{padding-top:26px}
 .contact-note a{color:var(--sea2);font-weight:800}
 footer a.foot-contact{color:#fff;font-weight:700}
 footer .foot-contact-line{display:block;margin:2px 0 8px}
+
+/* ---------- 町外イベント ---------- */
+.o-caution{font-size:13px;color:var(--sub);background:#fff8e6;border:1px solid #f3e1b0;border-radius:14px;padding:10px 14px;margin:0 0 12px;line-height:1.7}
+.o-head{font-size:18px;margin:26px 0 12px;display:flex;align-items:center;gap:8px}
+.o-now{font-size:12px;background:var(--coral);color:#fff;border-radius:99px;padding:2px 10px}
+.o-when{display:inline-block;font-size:13px;font-weight:800;color:var(--sub);background:var(--mist);border-radius:99px;padding:3px 12px}
+.o-when.fixed{background:var(--coral-soft);color:#c2442a}
+.o-big{display:inline-block;vertical-align:middle;font-size:11px;font-weight:900;color:#7a5600;background:var(--sun);border-radius:6px;padding:1px 7px;margin-left:4px}
+.o-tags{display:flex;gap:6px;flex-wrap:wrap}
+.o-tags .tag{background:#e1effa;color:#1f5f95}
+.o-tags .tag.g{background:#eef1f3;color:#55626e}
+.ocard .o-where{font-size:13px;color:var(--sub)}
+.ocard .o-when{align-self:flex-start}
+@media (max-width:480px){.topnav .links a{padding:10px 8px;font-size:13px}.topnav .brand{font-size:13px}}

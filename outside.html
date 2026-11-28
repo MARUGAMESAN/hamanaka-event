@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>町外イベント｜はまなかイベントカレンダー</title>
+<meta name="description" content="浜中町から行ける、釧路・根室管内を中心とした道東・道内の大きなおまつり・音楽フェスの一覧。例年の開催時期と浜中からの距離の目安つき。">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/favicon.svg">
+<meta name="theme-color" content="#0f2a44">
+<!-- SNS（LINE・X・Facebook）でURLを共有したときの表示。
+     公開後、下の2か所の「USERNAME」を自分のGitHubユーザー名に書き換える -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="はまなかイベントカレンダー">
+<meta property="og:title" content="町外イベント｜はまなかイベントカレンダー">
+<meta property="og:description" content="北海道浜中町のイベント情報をまとめてチェックできるイベントカレンダー。">
+<meta property="og:url" content="https://marugamesan.github.io/hamanaka-event/outside.html">
+<meta property="og:image" content="https://marugamesan.github.io/hamanaka-event/img/ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261128d">
+</head>
+<body>
+
+<header>
+  <nav class="topnav" aria-label="メニュー">
+    <div class="wrap">
+      <a class="brand" href="./">はまなかイベントカレンダー</a>
+      <div class="links">
+        <a href="./#calendar">イベント</a>
+        <a href="regular.html">定期活動・サークル</a>
+        <a href="outside.html" class="cur">町外イベント</a>
+      </div>
+    </div>
+  </nav>
+  <div class="wrap page-head">
+    <div class="logo">NEARBY EVENTS</div>
+    <h1>町外イベント</h1>
+    <p class="lead">釧路・根室管内を中心に、十勝・オホーツク・札幌の大きなおまつりや音楽フェスをまとめました。</p>
+    <div class="head-btns"><a class="line-btn sm hidden" data-line data-line-link target="_blank" rel="noopener">LINEでイベントをチェック</a></div>
+  </div>
+  <svg class="waves" viewBox="0 0 1200 46" preserveAspectRatio="none"><path d="M0,24 C150,46 300,4 450,22 C600,40 750,6 900,22 C1050,38 1125,16 1200,20 L1200,46 L0,46 Z" fill="#fbfaf7"/></svg>
+</header>
+
+<main class="wrap">
+  <section>
+    <div class="filters">
+      <div class="frow" id="fArea"><span class="lbl">地域</span></div>
+    </div>
+    <p class="o-caution">日程は例年の目安です。お出かけ前に、必ず公式の情報をご確認ください。車の時間は浜中町（霧多布）からのおおよその目安です。</p>
+    <p class="rcount" id="ocount">読み込み中…</p>
+    <div id="oFixed"></div>
+    <div id="oMonths"></div>
+  </section>
+
+  <section id="postSec">
+    <div class="post-box">
+      <h2>載っていない町外イベントを知っていますか？</h2>
+      <p>道東のおまつりやフェスで、ここに載せたほうがいいものがあれば教えてください。運営が確認して追加します。</p>
+      <div class="post-btns">
+        <a class="cta hidden" id="oInfoBtn" data-contact data-contact-link target="_blank" rel="noopener">情報を送る</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="lineSec" class="line-sec hidden" data-line>
+    <div class="line-box">
+      <div class="line-ic" aria-hidden="true">LINE</div>
+      <div class="line-txt">
+        <h2>公式LINEで、もっと手軽に</h2>
+        <p>友だち追加して「今週」「明日」「サークル」と送るだけで、浜中のイベント情報が返ってきます。メニューのボタンを押すだけでもOK。</p>
+      </div>
+      <a class="line-btn" data-line-link target="_blank" rel="noopener">LINEでイベントをチェック</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  はまなかイベントカレンダー｜<span id="operator"></span><span class="foot-contact-line hidden" data-contact><a class="foot-contact" data-contact-link target="_blank" rel="noopener">お問い合わせ</a></span><br>
+  掲載内容は変更になる場合があります。最新情報は各主催者にご確認ください。
+</footer>
+
+<script src="config.js?v=20261128d"></script>
+<script src="common.js?v=20261128d"></script>
+<script src="outside.js?v=20261128d"></script>
+</body>
+</html>

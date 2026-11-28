@@ -193,6 +193,49 @@
   }
   const holidayName = v => { const d = typeof v === "string" ? parse(v) : v; return holidaysOf(d.getFullYear())[ymd(d)] || ""; };
 
+  /* ---------- 町外イベント（道東・道内の大きなイベント） ---------- */
+  const OAREAS = [
+    { v: "kn", label: "釧路・根室", test: o => /釧路|根室/.test(o.area) },
+    { v: "tk", label: "十勝", test: o => /十勝/.test(o.area) },
+    { v: "oh", label: "オホーツク", test: o => /オホーツク/.test(o.area) },
+    { v: "sp", label: "札幌・道央", test: o => /札幌|道央/.test(o.area) },
+    { v: "music", label: "音楽フェス", test: o => /音楽/.test(o.genre) }
+  ];
+  // 「10月〜11月中旬」→10、「2〜3月」→2、「夏」→7（並べ替え用の月）
+  function seasonMonth(s) {
+    const t = String(s || "").normalize("NFKC");
+    const m = t.match(/(\d{1,2})\s*[月〜~\-]/);
+    if (m) return +m[1];
+    if (/春/.test(t)) return 4; if (/夏/.test(t)) return 7; if (/秋/.test(t)) return 9; if (/冬/.test(t)) return 12;
+    return 0;
+  }
+  function normalizeOutside(list) {
+    return (list || []).map((r, i) => ({
+      id: "ot" + i,
+      name: String(r.name || r["イベント名"] || "").trim(),
+      area: r.area || r["地域"] || "",
+      town: r.town || r["市町村"] || "",
+      genre: r.genre || r["ジャンル"] || "",
+      big: truthy(r.big != null ? r.big : r["大型"]),
+      season: r.season || r["例年の時期"] || "",
+      date: normDate(r.date || r["開始日"]),
+      end: normDate(r.end || r["終了日"]),
+      place: r.place || r["会場"] || "",
+      access: r.access || "",
+      url: safeUrl(r.url || r["公式・詳細URL"]),
+      note: r.note || r["ひとこと"] || "",
+      checked: normDate(r.checked || r["最終確認日"])
+    })).filter(o => o.name).map(o => Object.assign(o, {
+      last: o.end || o.date,
+      month: o.date ? parse(o.date).getMonth() + 1 : seasonMonth(o.season)
+    }));
+  }
+  // 日程が決まっていて、まだ終わっていないもの
+  const outsideUpcoming = o => !!o.date && o.last >= TODAY;
+  // 今月から数えて何か月後か（0〜11）
+  const monthsFromNow = m => m ? (m - (today.getMonth() + 1) + 12) % 12 : 99;
+  const loadOutside = () => loadRows(CFG.OUTSIDE_CSV_URL, "data/outside.json").then(normalizeOutside);
+
   const loadRegular = () => loadRows(CFG.REGULAR_CSV_URL, "data/regular.json").then(normalizeRegular);
 
   // 公式LINEの友だち追加ボタン（config.js の LINE_URL があるときだけ表示）
@@ -209,6 +252,7 @@
 
   window.HC = {
     CFG, WD, esc, pad, ymd, parse, addDays, today, TODAY, jp, jpRange, normDate, truthy, safeUrl, holidayName,
+    OAREAS, loadOutside, outsideUpcoming, monthsFromNow,
     parseCSV, loadRows, RCATS, rcatOf, loadRegular, occursOn, whenText, contactLink, pickForTop
   };
 })();

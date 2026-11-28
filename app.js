@@ -338,6 +338,24 @@
   if (safeUrl(CFG.REGULAR_FORM_URL)) $("postRegBtn").href = CFG.REGULAR_FORM_URL;
   else { $("postRegBtn").classList.add("soon"); $("postRegBtn").textContent = "サークルを掲載（準備中）"; $("postRegBtn").removeAttribute("href"); }
 
+  // 町外の大きなイベント：日程が決まっている近いもの → 今月・来月が例年の時期のもの、の順に4件
+  window.HC.loadOutside().then(list => {
+    if (!list.length) return;
+    const H = window.HC;
+    const up = list.filter(H.outsideUpcoming).sort((a, b) => a.date.localeCompare(b.date));
+    const soon = list.filter(o => !H.outsideUpcoming(o) && H.monthsFromNow(o.month) <= 3)
+      .sort((a, b) => H.monthsFromNow(a.month) - H.monthsFromNow(b.month) || (b.big - a.big));
+    const pick = up.concat(soon).slice(0, 4);
+    const md = s => { const d = parse(s); return `${d.getMonth() + 1}/${d.getDate()}（${WD[d.getDay()]}）`; };
+    $("outCount").textContent = list.length;
+    $("outBand").innerHTML = pick.map(o => `<a class="rcard ocard" href="outside.html#${o.id}">
+        <span class="o-when${o.date ? " fixed" : ""}">${o.date ? esc(md(o.date) + (o.end && o.end !== o.date ? "〜" + md(o.end) : "")) : "例年 " + esc(o.season)}</span>
+        <h3>${esc(o.name)}${o.big ? ' <span class="o-big">大型</span>' : ""}</h3>
+        <span class="o-where">${esc(o.town)}${o.access ? "｜浜中から車で" + esc(o.access) : ""}</span></a>`).join("")
+      || '<div class="empty">近いうちの町外イベントはありません</div>';
+    $("outside").classList.remove("hidden");
+  }).catch(err => console.error(err));
+
   window.HC.loadRegular().then(list => { REGULAR = list; renderRegularBand(); if (EVENTS.length) renderCal(); })
     .catch(err => { console.error(err); renderRegularBand(); });
 
