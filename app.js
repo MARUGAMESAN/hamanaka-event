@@ -342,7 +342,8 @@
   window.HC.loadOutside().then(list => {
     if (!list.length) return;
     const H = window.HC;
-    const up = list.filter(H.outsideUpcoming).sort((a, b) => a.date.localeCompare(b.date));
+    const limit = ymd(addDays(today, 120));  // 4か月先まで
+    const up = list.filter(o => H.outsideUpcoming(o) && o.date <= limit).sort((a, b) => a.date.localeCompare(b.date));
     const soon = list.filter(o => !H.outsideUpcoming(o) && H.monthsFromNow(o.month) <= 3)
       .sort((a, b) => H.monthsFromNow(a.month) - H.monthsFromNow(b.month) || (b.big - a.big));
     const pick = up.concat(soon).slice(0, 4);

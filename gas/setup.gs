@@ -21,6 +21,10 @@
  *    （例：「時間」「定員」「申込締切」を足すと、サイトにも表示されるようになる）
  */
 
+// 申請通知メールを追加で送るアドレス（スクリプトを実行した人には常に届く）
+// 例： const NOTIFY_TO = ["aaa@example.com", "bbb@example.com"];
+const NOTIFY_TO = [];
+
 const SITE_NAME = "はまなかイベントカレンダー";
 const PUB_SHEET = "公開用";
 const ADMIN_COLS = ["掲載", "日程予定（未確定）", "管理メモ"];
@@ -35,13 +39,17 @@ const FIELDS = [
   ["category",    ["カテゴリ", "カテゴリー"]],
   ["price",       ["参加費"]],
   ["capacity",    ["定員"]],
-  ["deadline",    ["申込締切", "申し込み締切", "締切"]],
+  ["deadline",    ["申込締切", "申し込み締切", "締切", "申込期限", "申し込み期限"]],
   ["apply",       ["申込方法", "申込方法・URL", "申し込み方法"]],
   ["description", ["説明文", "イベント内容"]],
   ["organizer",   ["主催者名", "主催者名（サイトに掲載）"]],
-  ["tentative",   ["日程予定（未確定）"]]
+  ["tentative",   ["日程予定（未確定）"]],
+  ["conditions",  ["参加条件", "参加資格", "対象"]],
+  ["image1",      ["イベントチラシ等の掲載", "イベントチラシ等の掲載（1枚目）", "画像1", "画像（1枚目）"]],
+  ["image2",      ["イベントチラシ等の掲載（2枚目）", "画像2", "画像（2枚目）"]],
+  ["end",         ["開催日(2日以上ある場合は終了日を記載)", "終了日", "最終日"]]
 ];
-const DATE_FIELDS = ["posted", "date", "deadline"];
+const DATE_FIELDS = ["posted", "date", "deadline", "end"];
 
 /* ===================================================== */
 
@@ -67,15 +75,18 @@ function rebuildPublicTab() {
   const pubCol = colOf_(heads, ["掲載"]);
   if (!pubCol) throw new Error("「掲載」列がありません。先に setup を実行してください。");
 
+  // 列全体（A:A）で参照する。フォームの回答で行が挿入されても範囲がずれない。
+  // 見出し行は「掲載」の値が TRUE にならないので自動的に除外される。
   const ref = "'" + resp.getName().replace(/'/g, "''") + "'!";
-  const rng = c => ref + letter_(c) + "2:" + letter_(c);
+  const rng = c => ref + letter_(c) + ":" + letter_(c);
   const missing = [];
   const cols = FIELDS.map(([key, names]) => {
     const c = colOf_(heads, names);
-    if (!c) { missing.push(key + "（" + names[0] + "）"); return "IF(ROW(" + ref + "A2:A),\"\")"; }
+    if (!c) { missing.push(key + "（" + names[0] + "）"); return "IF(ROW(" + ref + "A:A),\"\")"; }
     return rng(c);
   });
-  const formula = "=ARRAYFORMULA(IFERROR(FILTER({" + cols.join(",") + "}," + rng(pubCol) + "=TRUE),\"\"))";
+  // チェックボックス（TRUE）でも、手入力の「TRUE」でも掲載扱いにする
+  const formula = "=ARRAYFORMULA(IFERROR(FILTER({" + cols.join(",") + "},UPPER(" + rng(pubCol) + "&\"\")=\"TRUE\"),\"\"))";
 
   const pub = ss.getSheetByName(PUB_SHEET) || ss.insertSheet(PUB_SHEET);
   pub.clear();
@@ -100,20 +111,62 @@ function rebuildPublicTab() {
 
 /** 申請が届いたら管理者にメール */
 function notifyNewSubmission(e) {
+  // 新しい申請の行に「掲載」「日程予定」のチェックボックスを付ける
+  try {
+    const sh = e.range.getSheet();
+    const heads = headers_(sh);
+    const cb = SpreadsheetApp.newDataValidation().requireCheckbox().build();
+    ["掲載", "日程予定（未確定）"].forEach(n => {
+      const c = colOf_(heads, [n]);
+      if (c) sh.getRange(e.range.getRow(), c).setDataValidation(cb);
+    });
+  } catch (err) { Logger.log(err); }
+
+  // アップロードされた画像を「リンクを知っている全員が閲覧可」にする（サイトに表示するため）
+  try { shareImagesInRow_(e.range.getSheet(), e.range.getRow()); } catch (err) { Logger.log(err); }
+
   const nv = (e && e.namedValues) || {};
   const title = (nv["イベント名"] || [""])[0];
   const lines = Object.keys(nv)
     .filter(k => k && ADMIN_COLS.indexOf(k) < 0)
     .map(k => "■ " + k + "\n" + nv[k].join(", "));
+  const to = [Session.getEffectiveUser().getEmail()].concat(NOTIFY_TO)
+    .map(s => String(s).trim()).filter(Boolean).join(",");
   MailApp.sendEmail(
-    Session.getEffectiveUser().getEmail(),
+    to,
     "【" + SITE_NAME + "】掲載申請が届きました：" + title,
     "新しいイベントの掲載申請が届きました。\n内容を確認して、問題なければ回答シートの「掲載」にチェックを入れてください。\n\n" +
     SpreadsheetApp.getActiveSpreadsheet().getUrl() + "\n\n" + lines.join("\n\n")
   );
 }
 
+/**
+ * 画像を一括で公開設定にする（最初に1回だけ手動で実行。ドライブの許可を求められたら「許可」）
+ * 回答シートにある全部の画像を「リンクを知っている全員が閲覧可」にします
+ */
+function shareAllImages() {
+  const sh = findResponseSheet_(SpreadsheetApp.getActiveSpreadsheet());
+  let n = 0;
+  for (let r = 2; r <= sh.getLastRow(); r++) n += shareImagesInRow_(sh, r);
+  Logger.log(n + " 枚の画像を公開設定にしました");
+}
+
 /* ---------- 内部処理 ---------- */
+
+function shareImagesInRow_(sh, row) {
+  const heads = headers_(sh);
+  let n = 0;
+  ["image1", "image2"].forEach(key => {
+    const c = colOf_(heads, FIELDS.find(f => f[0] === key)[1]);
+    if (!c) return;
+    const ids = String(sh.getRange(row, c).getValue()).match(/[-\w]{25,}/g) || [];
+    ids.forEach(id => {
+      DriveApp.getFileById(id).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      n++;
+    });
+  });
+  return n;
+}
 
 function findResponseSheet_(ss) {
   const s = ss.getSheets().find(sh => sh.getFormUrl());
@@ -189,6 +242,10 @@ function addInitialEvents_(resp) {
     row[colOf_(heads, ["管理メモ"]) - 1] = "初期データ";
     return row;
   });
-  resp.getRange(resp.getLastRow() + 1, 1, rows.length, width).setValues(rows);
+  // チェックボックス列は空行にも FALSE が入るので、A列（タイムスタンプ）で最後の行を探す
+  const colA = resp.getRange(1, 1, resp.getMaxRows(), 1).getValues();
+  let last = colA.length;
+  while (last > 1 && colA[last - 1][0] === "") last--;
+  resp.getRange(last + 1, 1, rows.length, width).setValues(rows);
   props.setProperty("SEEDED", "1");
 }
